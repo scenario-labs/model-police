@@ -1,6 +1,6 @@
 <p align="center">
     <br>
-    <img src="https://github.com/scenario-labs/model-police/blob/develop/docs/sources/modelpolice.png?raw=true" width="400"/>
+    <img src="https://github.com/scenario-labs/model-police/blob/main/docs/sources/modelpolice.png?raw=true" width="400"/>
     <br>
 </p>
 
