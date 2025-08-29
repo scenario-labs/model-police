@@ -14,7 +14,8 @@ from model_police import PoliceOfficer
 police_officer = PoliceOfficer()
 
 try:
-    model_class, model_type, framework, components = police_officer.inspect(checkpoint_path)
+    model_class, model_type, framework, components = \
+        police_officer.inspect(checkpoint_path)
 except Exception as e:
     logger.error(e)
 ```
