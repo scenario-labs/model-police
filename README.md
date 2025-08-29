@@ -12,13 +12,15 @@ from model_police import PoliceOfficer
 police_officer = PoliceOfficer()
 
 try:
-    model_class, model_type, framework = police_officer.inspect(checkpoint_path)
+    model_class, model_type, framework, components = police_officer.inspect(checkpoint_path)
 except Exception as e:
     log.error(e)
 ```
 
 Model class: flux.1, sd-1_5, sd-xl
 
-Model type: FULL, LORA_ONLY, UNET_ONLY, VAE_ONLY
+Model type: FULL, LORA_ONLY
 
-Framework: diffusers, kohya, bfl
+Model components: unet, vae, transformer, text_encoder ...
+
+Model framework: diffusers, kohya, bfl, xlabs
