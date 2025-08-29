@@ -4,15 +4,15 @@
     <br>
 </p>
 
-ModelPolice library aims to analyse the model checkpoints and their compatibility.
+`model_police` Python library aims to analyse the model checkpoints and their compatibility.
 
 ```python
-from model_police import ModelValidator
+from model_police import ModelPoliceOfficer
 
-model_validator = ModelValidator()
+model_police_officer = ModelPoliceOfficer()
 
 try:
-    model_class, model_type, framework = model_validator.analyse(checkpoint_path)
+    model_class, model_type, framework = model_police_officer.inspect(checkpoint_path)
 except Exception as e:
     log.error(e)
 ```
