@@ -19,7 +19,7 @@ except Exception as e:
 
 Model class: flux.1, sd-1_5, sd-xl
 
-Model type: FULL, LORA_ONLY
+Model type: full, lora
 
 Model components: unet, vae, transformer, text_encoder ...
 
