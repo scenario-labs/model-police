@@ -6,7 +6,7 @@
 
 `model_police` Python library aims to analyse the model checkpoints and their compatibility.
 
-## Safeguarding
+## Model safeguarding
 
 ```python
 from model_police import PoliceOfficer
