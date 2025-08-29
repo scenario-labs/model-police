@@ -14,7 +14,7 @@ from model_police import PoliceOfficer
 police_officer = PoliceOfficer()
 
 try:
-    model_class, model_type, framework, components = \
+    model_class, model_type, model_framework, model_components = \
         police_officer.inspect(checkpoint_path)
 except Exception as e:
     logger.error(e)
@@ -38,9 +38,7 @@ from model_police import PoliceOfficer
 police_officer = PoliceOfficer()
 
 try:
-    state_dict = police_officer.convert(
-        state_dict, type="lora", from="kohya", to="diffusers"
-    )
+    state_dict = police_officer.convert_lora(state_dict, from="kohya", to="diffusers")
 except Exception as e:
     logger.error(e)
 ```
