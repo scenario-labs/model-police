@@ -7,12 +7,12 @@
 `model_police` Python library aims to analyse the model checkpoints and their compatibility.
 
 ```python
-from model_police import ModelPoliceOfficer
+from model_police import PoliceOfficer
 
-model_police_officer = ModelPoliceOfficer()
+police_officer = PoliceOfficer()
 
 try:
-    model_class, model_type, framework = model_police_officer.inspect(checkpoint_path)
+    model_class, model_type, framework = police_officer.inspect(checkpoint_path)
 except Exception as e:
     log.error(e)
 ```
