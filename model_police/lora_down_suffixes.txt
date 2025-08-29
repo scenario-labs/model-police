@@ -1,0 +1,3 @@
+.lora_A.weight
+.lora_down.weight
+.down.weight

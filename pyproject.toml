@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61.0", "wheel>=0.37.1"]
+
+[project]
+name = "model_police"
+version = "0.1.0"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[project.scripts]
+# Command line interface entrypoint scripts
+checkpoint = "model_police.checkpoint:main"
+dump_from_diffusers = "model_police.dump_from_diffusers:main"
+
+[tool.setuptools.package-data]
+"model_police" = [
+    "*_suffixes.txt",
+    "conversions/*",
+    "model_dictionaries/*",
+]
