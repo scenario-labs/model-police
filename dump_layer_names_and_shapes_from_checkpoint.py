@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("model")
     args = parser.parse_args()
 
-    is_lora, model_class, model_layer_names_and_shapes = model_police_officer.inspect(args.model)
+    is_lora, model_class, diffusers_state_dict, model_layer_names_and_shapes = model_police_officer.inspect(args.model)
 
     for k in model_layer_names_and_shapes:
         print(k)

@@ -212,6 +212,8 @@ class ModelPolice:
         else:
             layer_names_and_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
-        model_class = None
+        model_class = None 
+        diffusers_state_dict = {}
+        # diffusers_state_dict, model_class = self.classify_and_convert_if_possible(layer_names_and_shapes)
 
-        return is_lora, model_class, layer_names_and_shapes
+        return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes
