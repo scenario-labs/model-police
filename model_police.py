@@ -43,32 +43,29 @@ class ModelPolice:
                     # layer_name, in_features, out_features = line.split(",")
 
     @staticmethod
-    def get_state_dict_shapes(state_dict_or_checkpoint_path):
-        
-        if isinstance(state_dict_or_checkpoint_path, dict):
-            # input is a state dict
-            state_dict_shape = {k: t.shape for k, v in state_dict_or_checkpoint_path.items()}
+    def read_state_dict_from_checkpoint(checkpoint_path):
+        # input is a safetensors or gguf file
+        checkpoint_suffix = Path(checkpoint_path).suffix
+        state_dict = {}
+        if checkpoint_suffix == ".safetensors":
+            with safe_open(checkpoint_path, framework="pt", device="cpu") as f:
+                for key in f.keys():
+                    state_dict[key] = f.get_tensor(key)
+        elif checkpoint_suffix == ".gguf":
+            reader = GGUFReader(checkpoint_path)
+            for tensor in reader.tensors:
+                state_dict[tensor.name] = tensor.data
+        else: 
+            raise ValueError(f"Unknown checkpoint suffix: {checkpoint_suffix}")
 
-        elif isinstance(state_dict_or_checkpoint_path, str):
-            # input is a safetensors or gguf file
-            checkpoint_suffix = Path(state_dict_or_checkpoint_path).suffix
-            state_dict_shape = {}
-            if checkpoint_suffix == ".safetensors":
-                with safe_open(state_dict_or_checkpoint_path, framework="pt", device="cpu") as f:
-                    for key in f.keys():
-                        state_dict_shape[key] = list(f.get_tensor(key).shape)
-            elif checkpoint_suffix == ".gguf":
-                reader = GGUFReader(state_dict_or_checkpoint_path)
-                for tensor in reader.tensors:
-                    state_dict_shape[tensor.name] = tensor.shape.tolist()
-            else: 
-                raise ValueError(f"Unknown checkpoint suffix: {checkpoint_suffix}")
-        else:
-            raise ValueError(
-                f"Unknown type for checkpoint input: {type(state_dict_or_checkpoint_path)}"
-            )
+        return state_dict
 
-        return state_dict_shape
+    @staticmethod
+    def get_state_dict_shapes(state_dict):
+        return {
+            k: list(v.shape) 
+            for k, v in state_dict.items()
+        }
 
 
     @staticmethod
@@ -138,14 +135,18 @@ class ModelPolice:
         return final_keys
 
 
-    def classify_and_convert_if_possible(self, layer_names_and_shapes):
-        # check if lora suffix have been 
+    def classify_keys(self, layer_names_and_shapes):
+        layer_names_and_shapes = layer_names_and_shapes.copy()
+
+        # check if it's not lora keys
         if self.is_lora_key(layer_names_and_shapes[0]):
-            raise ValueError("Classification requires layer names and shapes. Use 'get_layer_names_and_shapes_from_loras()'")
+            raise ValueError(
+                "Classification requires layer names and shapes. Use 'get_layer_names_and_shapes_from_loras()'"
+            )
 
         # vote for dictname
         dictname_votes = {}
-        for k in keys:
+        for k in layer_names_and_shapes:
             if k in self._layername_and_shape_to_dictname:
                 for d in self._layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
@@ -153,58 +154,42 @@ class ModelPolice:
                     else:
                         dictname_votes[d] += 1
 
-        new_state_dict = {}
-        model_class = None
+        model_classes = {}
         for matched_dictname in sorted(dictname_votes, key=dictname_votes.get):
-            # find keys 
-            matched_keys = [
-                k.split(",")[0]
-                for k in keys 
-                if matched_dictname in self._layername_and_shape_to_dictname[k]
-            ]
-
-            # extract state_dict that match
-            matched_state_dict = {
-                k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                if self._remove_lora_suffix(k) in matched_keys 
-            }
-
             _model_class, framework, *_ = matched_dictname.split("_")
 
-            if model_class is None:
-                model_class = _model_class
-            elif _model_class != model_class:
-                raise ValueError(
-                    f"Matched lora keys are from different model class: {model_class} != {_model_class}"
-                )
+            # find keys 
+            matched_keys = []
+            remaining_keys = []
+            for k in layer_names_and_shapes:
+                if matched_dictname in self._layername_and_shape_to_dictname[k]:
+                    matched_keys.append(k.split(",")[0])
+                else:
+                    remaining_keys.append(k)
 
-            # if diffusers, do nothing
-            if framework == "diffusers":
-                logger.info("Lora diffusers")
-                new_state_dict.update(matched_state_dict)
+            model_classes[_model_class] = matched_keys
+            layer_names_and_shapes = remaining_keys
 
-            elif framework == "kohya":
-                logger.info("Kohya conversion")
-                new_state_dict.update(
-                    convert_sd_scripts_to_ai_toolkit(matched_state_dict)
-                )
+        if len(layer_names_and_shapes) > 0:
+            model_classes["unknown"] = [k.split(",")[0] for k in layer_names_and_shapes]
 
-            else:
-                raise ValueError("Unknown framework")
-
-            # temporary: we don't go for mixture of loras in this version
-            # but in the future we'll remove this so that the for loop will 
-            # continue for the remaining keys matched on other frameworks
-            break
-
-        if len(state_dict) > 0:
-            raise ValueError(f"{len(state_dict)} remaining keys: {state_dict.keys()}")
-
-        return new_state_dict, model_class
+        return model_classes
 
 
     def inspect(self, state_dict_or_checkpoint_path):
-        state_dict_shapes = self.get_state_dict_shapes(state_dict_or_checkpoint_path)
+        if isinstance(state_dict_or_checkpoint_path, dict):
+            # input is a state dict
+            state_dict = state_dict_or_checkpoint_path
+
+        elif isinstance(state_dict_or_checkpoint_path, str):
+            state_dict = self.read_state_dict_from_checkpoint(state_dict_or_checkpoint_path)
+        
+        else:
+            raise ValueError(
+                f"Unknown type for checkpoint input: {type(state_dict_or_checkpoint_path)}"
+            )
+
+        state_dict_shapes = self.get_state_dict_shapes(state_dict)
         is_lora = self.is_lora(state_dict_shapes)
 
         if is_lora:
@@ -212,8 +197,26 @@ class ModelPolice:
         else:
             layer_names_and_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
-        model_class = None 
-        diffusers_state_dict = {}
-        # diffusers_state_dict, model_class = self.classify_and_convert_if_possible(layer_names_and_shapes)
+        model_classes = self.classify_keys(layer_names_and_shapes)
+        
+        if len(model_classes) > 1:
+            raise ValueError("we don't deal with mixture of loras right now")
+        model_class = list(model_classes.keys())[0]
+
+        if model_class == "diffusers":
+            diffusers_state_dict = state_dict
+        elif model_class == "kohya":
+            matched_keys = model_classes[model_class]
+
+            # extract state_dict that match
+            matched_state_dict = {
+                k: state_dict.pop(k) for k in list(state_dict.keys()) 
+                if self._remove_lora_suffix(k) in matched_keys 
+            }
+            assert len(state_dict) == 0
+            assert len(matched_state_dict) > 0
+            diffusers_state_dict = convert_sd_scripts_to_ai_toolkit(matched_state_dict)
+        else:
+            diffusers_state_dict = None
 
         return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes
