@@ -33,12 +33,12 @@ Model framework: diffusers, kohya, bfl, xlabs
 
 
 ```python
-from model_police import PoliceOfficer
+from model_police import ModelPolice
 
-police_officer = PoliceOfficer()
+model_police_officer = ModelPolice()
 
 try:
-    state_dict = police_officer.convert_lora(state_dict, from="kohya", to="diffusers")
+    is_lora, model_class, layer_names_and_shapes = model_police_officer.inspect(state_dict_or_checkpoint_path)
 except Exception as e:
     logger.error(e)
 ```
