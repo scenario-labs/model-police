@@ -26,6 +26,10 @@ if model_class == "flux_kohya":
 
 ```
 
+Following notes:
+- the `inspect()` method is safe and will return the `layer_names_with_shapes` in order to add unknown models to the `model_dictionaries` folder
+- the `model_classes` is a dictionary where keys are `model_class` (ie dictionary names) and values the matched keys
+
 ### create new model dictionaries
 
 
