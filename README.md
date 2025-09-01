@@ -20,6 +20,9 @@ if len(model_classes) > 1:
 model_class = list(model_classes.keys())[0]
 state_dict = model_classes[model_class]
 
+if model_class == "unknown":
+    raise ValueError("Unknown model")
+
 if model_class == "flux_kohya":
     from conversions import kohya
     state_dict = koyya.convert_sd_scripts_to_ai_toolkit(state_dict)
@@ -27,8 +30,8 @@ if model_class == "flux_kohya":
 ```
 
 Following notes:
-- the `inspect()` method is safe and will return the `layer_names_with_shapes` in order to add unknown models to the `model_dictionaries` folder
-- the `model_classes` is a dictionary where keys are `model_class` (ie dictionary names) and values the matched keys
+- the `inspect()` method is safe and returns the list `layer_names_with_shapes` in order to add unknown models to the `model_dictionaries` folder for further classifications
+- the output `model_classes` is a dictionary where keys are `model_class` (ie dictionary names) and values the matched keys
 
 ### create new model dictionaries
 
