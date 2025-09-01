@@ -109,7 +109,7 @@ class ModelPolice:
         raise ValueError(f"{key} is not a lora key")
 
 
-    def get_layer_names_and_shapes_from_lora(self, state_dict_or_state_dict_shapes):
+    def get_layer_names_with_shapes_from_lora(self, state_dict_or_state_dict_shapes):
         in_features = {}  # dict : key => in_featues
         out_features = {}  # dict : key => out_features
 
@@ -135,18 +135,18 @@ class ModelPolice:
         return final_keys
 
 
-    def classify_keys(self, layer_names_and_shapes):
-        layer_names_and_shapes = layer_names_and_shapes.copy()
+    def classify_keys(self, layer_names_with_shapes):
+        layer_names_with_shapes = layer_names_with_shapes.copy()
 
         # check if it's not lora keys
-        if self.is_lora_key(layer_names_and_shapes[0]):
+        if self.is_lora_key(layer_names_with_shapes[0]):
             raise ValueError(
-                "Classification requires layer names and shapes. Use 'get_layer_names_and_shapes_from_loras()'"
+                "Classification requires layer names and shapes. Use 'get_layer_names_with_shapes_from_lora()'"
             )
 
         # vote for dictname
         dictname_votes = {}
-        for k in layer_names_and_shapes:
+        for k in layer_names_with_shapes:
             if k in self._layername_and_shape_to_dictname:
                 for d in self._layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
@@ -161,17 +161,17 @@ class ModelPolice:
             # find keys 
             matched_keys = []
             remaining_keys = []
-            for k in layer_names_and_shapes:
+            for k in layer_names_with_shapes:
                 if matched_dictname in self._layername_and_shape_to_dictname[k]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
 
             model_classes[_model_class] = matched_keys
-            layer_names_and_shapes = remaining_keys
+            layer_names_with_shapes = remaining_keys
 
-        if len(layer_names_and_shapes) > 0:
-            model_classes["unknown"] = [k.split(",")[0] for k in layer_names_and_shapes]
+        if len(layer_names_with_shapes) > 0:
+            model_classes["unknown"] = [k.split(",")[0] for k in layer_names_with_shapes]
 
         return model_classes
 
@@ -179,9 +179,8 @@ class ModelPolice:
     def inspect(self, state_dict_or_checkpoint_path):
         # the inspect method does not raise error
         is_lora = None 
-        model_class = None 
-        diffusers_state_dict = None
-        layer_names_and_shapes = None
+        model_classes = None 
+        layer_names_with_shapes = None
         error = None
 
         try:
@@ -201,19 +200,13 @@ class ModelPolice:
             is_lora = self.is_lora(state_dict_shapes)
 
             if is_lora:
-                layer_names_and_shapes = self.get_layer_names_and_shapes_from_lora(state_dict_shapes)
+                layer_names_with_shapes = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
             else:
-                layer_names_and_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
+                layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
-            model_classes = self.classify_keys(layer_names_and_shapes)
-            
-            if len(model_classes) > 1:
-                raise ValueError("we don't deal with mixture of loras right now")
-            model_class = list(model_classes.keys())[0]
+            model_classes = self.classify_keys(layer_names_with_shapes)
 
-            if model_class == "diffusers":
-                diffusers_state_dict = state_dict
-            elif model_class == "kohya":
+            for model_class in list(model_classes.keys()):            
                 matched_keys = model_classes[model_class]
 
                 # extract state_dict that match
@@ -223,12 +216,10 @@ class ModelPolice:
                 }
                 assert len(state_dict) == 0
                 assert len(matched_state_dict) > 0
-                diffusers_state_dict = convert_sd_scripts_to_ai_toolkit(matched_state_dict)
-            else:
-                diffusers_state_dict = None
 
-            return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes, error
+
+            return is_lora, model_classes, layer_names_with_shapes, error
 
         except Exception as e:
             error = str(e)
-            return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes, error
+            return is_lora, model_classes, layer_names_with_shapes, error

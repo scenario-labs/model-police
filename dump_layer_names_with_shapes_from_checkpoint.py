@@ -16,7 +16,10 @@ if __name__ == "__main__":
     parser.add_argument("model")
     args = parser.parse_args()
 
-    is_lora, model_class, diffusers_state_dict, model_layer_names_and_shapes = model_police_officer.inspect(args.model)
+    is_lora, model_classes, layer_names_with_shapes, error = model_police_officer.inspect(args.model)
 
-    for k in model_layer_names_and_shapes:
+    if error is not None:
+        raise Exception(error)
+
+    for k in layer_names_with_shapes:
         print(k)
