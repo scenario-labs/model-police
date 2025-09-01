@@ -61,3 +61,8 @@ dump_layer_names_with_shapes_from_diffusers_pipeline "black-forest-labs/FLUX.1-d
 - `lora_alpha_suffixes.txt`
 
 Model dictionaries are in `model_dictionaries` folder. Naming convention is `modelclass_framework(*).csv`. For example: `flux_diffusers.csv`, `flux_kohya.csv`, or `flux_kohya_1.csv`
+
+### limitations
+
+- the lib only reads gguf and safetensors. In particular, it does not read binary and onnx files yet.
+- when multiple version of the same model in different precision are present in the folder, the lib overrides the key if already present. Should not be a problem, except if there is a mix of different models or framework, the lib creates a dictionary with all keys together.
