@@ -4,7 +4,7 @@
     <br>
 </p>
 
-`model_police` Python library aims to analyse the model checkpoints and their compatibility.
+`model_police` Python library aims to analyse and classify model checkpoints against model dictionariy, in order to check their compatibility. For example, a Flux.1 Dev full model can only be loaded on a Flux pipeline, while a lora requires even more precise verifications such as layer shapes.
 
 ```python
 from model_police import ModelPolice
