@@ -11,11 +11,19 @@ from model_police import ModelPolice
 
 model_police_officer = ModelPolice()
 
-try:
-    is_lora, model_class, layer_names_and_shapes, error = \
-        model_police_officer.inspect(state_dict_or_checkpoint_path)
-except Exception as e:
-    logger.error(e)
+is_lora, model_classes, layer_names_with_shapes, error = \
+    model_police_officer.inspect(state_dict_or_checkpoint_path)
+
+if len(model_classes) > 1:
+    raise ValueError("It's a mixture of models")
+
+model_class = list(model_classes.keys())[0]
+state_dict = model_classes[model_class]
+
+if model_class == "flux_kohya":
+    from conversions import kohya
+    state_dict = koyya.convert_sd_scripts_to_ai_toolkit(state_dict)
+
 ```
 
 ### create new model dictionaries
