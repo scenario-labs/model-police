@@ -8,9 +8,9 @@ from pathlib import Path
 
 from model_police import ModelPolice
 
-model_police_officer = ModelPolice()
+def main():
 
-if __name__ == "__main__":
+    model_police_officer = ModelPolice()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("model")
@@ -23,3 +23,6 @@ if __name__ == "__main__":
 
     for k in layer_names_with_shapes:
         print(k)
+
+if __name__ == "__main__":
+    main()

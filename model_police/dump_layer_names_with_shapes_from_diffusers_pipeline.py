@@ -6,8 +6,7 @@ import torch
 
 from diffusers import AutoPipelineForText2Image
 
-
-if __name__ == "__main__":
+def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("model")
@@ -25,3 +24,6 @@ if __name__ == "__main__":
 
         except:
             pass
+
+if __name__ == "__main__":
+    main()

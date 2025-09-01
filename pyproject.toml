@@ -12,3 +12,8 @@ dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[project.scripts]
+# Command line interface entrypoint scripts
+dump_layer_names_with_shapes_from_checkpoint = "model_police.dump_layer_names_with_shapes_from_checkpoint:main"
+dump_layer_names_with_shapes_from_diffusers_pipeline = "model_police.dump_layer_names_with_shapes_from_diffusers_pipeline:main"
