@@ -154,8 +154,6 @@ class ModelPolice:
 
         model_classes = {}
         for matched_dictname in sorted(dictname_votes, key=dictname_votes.get):
-            _model_class, framework, *_ = matched_dictname.split("_")
-
             # find keys 
             matched_keys = []
             remaining_keys = []
@@ -165,7 +163,7 @@ class ModelPolice:
                 else:
                     remaining_keys.append(k)
 
-            model_classes[_model_class] = matched_keys
+            model_classes[matched_dictname] = matched_keys
             layer_names_with_shapes = remaining_keys
 
         if len(layer_names_with_shapes) > 0:

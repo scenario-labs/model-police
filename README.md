@@ -22,10 +22,12 @@ state_dict = model_classes[model_class]
 
 if model_class == "unknown":
     raise ValueError("Unknown model")
+else:
+    print(f"Model class: {model_class}")
 
 if model_class == "flux_kohya":
     from conversions import kohya
-    state_dict = koyya.convert_sd_scripts_to_ai_toolkit(state_dict)
+    state_dict = kohya.convert_sd_scripts_to_ai_toolkit(state_dict)
 
 ```
 
