@@ -11,11 +11,13 @@ logger = logging.getLogger(__name__)
 
 here = Path(__file__).parent
 
+
 class ModelPolice:
     _layername_and_shape_to_dictname: dict[str, str] = {}
     _lora_down_suffixes: list[str] = []
     _lora_up_suffixes: list[str] = []
     _lora_alpha_suffixes: list[str] = []
+
 
     def __init__(self):
         
@@ -40,6 +42,7 @@ class ModelPolice:
                     self._layername_and_shape_to_dictname[line].append(dict_name)
                     ## line is in the form "key,in_features,out_features"
                     # layer_name, in_features, out_features = line.split(",")
+
 
     @staticmethod
     def read_state_dict_from_checkpoint(checkpoint_path):
@@ -76,6 +79,7 @@ class ModelPolice:
                 raise ValueError(f"Unknown checkpoint suffix: {checkpoint_path.suffix}")
 
         return state_dict
+
 
     @staticmethod
     def get_state_dict_shapes(state_dict):
@@ -153,6 +157,9 @@ class ModelPolice:
 
 
     def classify_keys(self, layer_names_with_shapes, check_shapes=True):
+        if not layer_names_with_shapes:
+            return {}
+
         if check_shapes:
             input_keys = layer_names_with_shapes.copy()
             _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
