@@ -152,20 +152,25 @@ class ModelPolice:
         return final_keys
 
 
-    def classify_keys(self, layer_names_with_shapes):
-        layer_names_with_shapes = layer_names_with_shapes.copy()
+    def classify_keys(self, layer_names_with_shapes, check_shapes=True):
+        if check_shapes:
+            input_keys = layer_names_with_shapes.copy()
+            _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
+        else:
+            input_keys = [ k.split(",")[0] for k in layer_names_with_shapes]
+            _layername_and_shape_to_dictname = { k.split(",")[0]: v for k, v in self._layername_and_shape_to_dictname }
 
         # check if it's not lora keys
-        if self.is_lora_key(layer_names_with_shapes[0]):
+        if self.is_lora_key(input_keys[0]):
             raise ValueError(
                 "Classification requires layer names and shapes. Use 'get_layer_names_with_shapes_from_lora()'"
             )
 
         # vote for dictname
         dictname_votes = {}
-        for k in layer_names_with_shapes:
-            if k in self._layername_and_shape_to_dictname:
-                for d in self._layername_and_shape_to_dictname[k]:
+        for k in input_keys:
+            if k in _layername_and_shape_to_dictname:
+                for d in _layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
                         dictname_votes[d] = 1
                     else:
@@ -176,17 +181,17 @@ class ModelPolice:
             # find keys 
             matched_keys = []
             remaining_keys = []
-            for k in layer_names_with_shapes:
-                if matched_dictname in self._layername_and_shape_to_dictname[k]:
+            for k in input_keys:
+                if matched_dictname in _layername_and_shape_to_dictname[k]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
 
             model_classes[matched_dictname] = matched_keys
-            layer_names_with_shapes = remaining_keys
+            input_keys = remaining_keys
 
-        if len(layer_names_with_shapes) > 0:
-            model_classes["unknown"] = [k.split(",")[0] for k in layer_names_with_shapes]
+        if len(input_keys) > 0:
+            model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
 
         return model_classes
 
@@ -219,7 +224,7 @@ class ModelPolice:
             else:
                 layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
-            model_classes = self.classify_keys(layer_names_with_shapes)
+            model_classes = self.classify_keys(layer_names_with_shapes, check_shapes=is_lora)
 
             for model_class in list(model_classes.keys()):            
                 matched_keys = model_classes[model_class]
