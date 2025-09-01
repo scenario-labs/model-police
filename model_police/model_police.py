@@ -1,3 +1,4 @@
+import glob
 import logging
 import torch
 
@@ -42,19 +43,27 @@ class ModelPolice:
 
     @staticmethod
     def read_state_dict_from_checkpoint(checkpoint_path):
-        # input is a safetensors or gguf file
-        checkpoint_suffix = Path(checkpoint_path).suffix
-        state_dict = {}
-        if checkpoint_suffix == ".safetensors":
-            with safe_open(checkpoint_path, framework="pt", device="cpu") as f:
-                for key in f.keys():
-                    state_dict[key] = f.get_tensor(key)
-        elif checkpoint_suffix == ".gguf":
-            reader = GGUFReader(checkpoint_path)
-            for tensor in reader.tensors:
-                state_dict[tensor.name] = tensor.data
-        else: 
-            raise ValueError(f"Unknown checkpoint suffix: {checkpoint_suffix}")
+        if Path(checkpoint_path).isdir():
+            raise ValueError("to be implemented")
+
+        else:
+            checkpoint_list = [("", checkpoint_path)]
+
+
+        for suffix, checkpoint_path in checkpoint_list:
+            # input is a safetensors or gguf file
+            checkpoint_suffix = Path(checkpoint_path).suffix
+            state_dict = {}
+            if checkpoint_suffix == ".safetensors":
+                with safe_open(checkpoint_path, framework="pt", device="cpu") as f:
+                    for key in f.keys():
+                        state_dict[f"{suffix}{key}"] = f.get_tensor(key)
+            elif checkpoint_suffix == ".gguf":
+                reader = GGUFReader(checkpoint_path)
+                for tensor in reader.tensors:
+                    state_dict[f"{suffix}{tensor.name}"] = tensor.data
+            else: 
+                raise ValueError(f"Unknown checkpoint suffix: {checkpoint_suffix}")
 
         return state_dict
 
