@@ -43,27 +43,37 @@ class ModelPolice:
 
     @staticmethod
     def read_state_dict_from_checkpoint(checkpoint_path):
-        if Path(checkpoint_path).isdir():
-            raise ValueError("to be implemented")
-
+        checkpoint_path = Path(checkpoint_path)
+        if checkpoint_path.isdir():
+            checkpoint_list = []
+            checkpoints = glob.glob("**/*.safetensors", root_dir=checkpoint_path, recursive=True)
+            for f in checkpoints:
+                prefix = str(Path(f).parent)
+                if prefix == ".":  # .parent returns "." when the file is at the root of folder
+                    prefix = ""
+                prefix = prefix.replace("/", ".")  # diffusers prefix layer naming convention
+                if prefix:
+                    prefix = f"{prefix}."  # adding a point
+                
+                name = Path(f).name
+                checkpoint_list.append((prefix, name))
         else:
             checkpoint_list = [("", checkpoint_path)]
 
 
-        for suffix, checkpoint_path in checkpoint_list:
+        for prefix, checkpoint_path in checkpoint_list:
             # input is a safetensors or gguf file
-            checkpoint_suffix = Path(checkpoint_path).suffix
             state_dict = {}
-            if checkpoint_suffix == ".safetensors":
+            if checkpoint_path.suffix == ".safetensors":
                 with safe_open(checkpoint_path, framework="pt", device="cpu") as f:
                     for key in f.keys():
-                        state_dict[f"{suffix}{key}"] = f.get_tensor(key)
-            elif checkpoint_suffix == ".gguf":
+                        state_dict[f"{prefix}{key}"] = f.get_tensor(key)
+            elif checkpoint_path.suffix == ".gguf":
                 reader = GGUFReader(checkpoint_path)
                 for tensor in reader.tensors:
-                    state_dict[f"{suffix}{tensor.name}"] = tensor.data
+                    state_dict[f"{prefix}{tensor.name}"] = tensor.data
             else: 
-                raise ValueError(f"Unknown checkpoint suffix: {checkpoint_suffix}")
+                raise ValueError(f"Unknown checkpoint suffix: {checkpoint_path.suffix}")
 
         return state_dict
 
