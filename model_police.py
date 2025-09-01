@@ -70,9 +70,9 @@ class ModelPolice:
 
     @staticmethod
     def state_dict_shapes_to_list(state_dict_shapes):
-        return [
+        return sorted([
             f"{k},{','.join(map(str, v))}" for k, v in state_dict_shapes.items()
-        ]
+        ])
 
 
     def is_lora_key(self, key):
@@ -130,7 +130,7 @@ class ModelPolice:
 
         assert len(out_features) == len(in_features), "Number of up and down keys do not match in the lora"
 
-        final_keys = [f"{k},{in_features[k]},{out_features[k]}" for k in in_features]
+        final_keys = sorted([f"{k},{in_features[k]},{out_features[k]}" for k in in_features])
         
         return final_keys
 
