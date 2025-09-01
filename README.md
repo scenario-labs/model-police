@@ -38,17 +38,20 @@ Following notes:
 ### create new model dictionaries
 
 
-From diffusers:
-
-```bash
-./dump_layer_names_with_shapes_from_diffusers_pipeline.py "black-forest-labs/FLUX.1-dev" > model_dictionaries/flux_diffusers.csv
-```
-
 From a checkpoint:
 
 ```bash
 ./dump_layer_names_with_shapes_from_checkpoint.py model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors > model_dictionaries/flux_kohya.csv
 ```
+
+From diffusers:
+
+```bash
+pip install -r requirements-diffusers.txt
+
+./dump_layer_names_with_shapes_from_diffusers_pipeline.py "black-forest-labs/FLUX.1-dev" > model_dictionaries/flux_diffusers.csv
+```
+
 
 ### dictionaries
 
