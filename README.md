@@ -12,7 +12,8 @@ from model_police import ModelPolice
 model_police_officer = ModelPolice()
 
 try:
-    is_lora, model_class, layer_names_and_shapes = model_police_officer.inspect(state_dict_or_checkpoint_path)
+    is_lora, model_class, layer_names_and_shapes, error = \
+        model_police_officer.inspect(state_dict_or_checkpoint_path)
 except Exception as e:
     logger.error(e)
 ```

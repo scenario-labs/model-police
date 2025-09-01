@@ -177,46 +177,58 @@ class ModelPolice:
 
 
     def inspect(self, state_dict_or_checkpoint_path):
-        if isinstance(state_dict_or_checkpoint_path, dict):
-            # input is a state dict
-            state_dict = state_dict_or_checkpoint_path
+        # the inspect method does not raise error
+        is_lora = None 
+        model_class = None 
+        diffusers_state_dict = None
+        layer_names_and_shapes = None
+        error = None
 
-        elif isinstance(state_dict_or_checkpoint_path, str):
-            state_dict = self.read_state_dict_from_checkpoint(state_dict_or_checkpoint_path)
-        
-        else:
-            raise ValueError(
-                f"Unknown type for checkpoint input: {type(state_dict_or_checkpoint_path)}"
-            )
+        try:
+            if isinstance(state_dict_or_checkpoint_path, dict):
+                # input is a state dict
+                state_dict = state_dict_or_checkpoint_path
 
-        state_dict_shapes = self.get_state_dict_shapes(state_dict)
-        is_lora = self.is_lora(state_dict_shapes)
+            elif isinstance(state_dict_or_checkpoint_path, str):
+                state_dict = self.read_state_dict_from_checkpoint(state_dict_or_checkpoint_path)
+            
+            else:
+                raise ValueError(
+                    f"Unknown type for checkpoint input: {type(state_dict_or_checkpoint_path)}"
+                )
 
-        if is_lora:
-            layer_names_and_shapes = self.get_layer_names_and_shapes_from_lora(state_dict_shapes)
-        else:
-            layer_names_and_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
+            state_dict_shapes = self.get_state_dict_shapes(state_dict)
+            is_lora = self.is_lora(state_dict_shapes)
 
-        model_classes = self.classify_keys(layer_names_and_shapes)
-        
-        if len(model_classes) > 1:
-            raise ValueError("we don't deal with mixture of loras right now")
-        model_class = list(model_classes.keys())[0]
+            if is_lora:
+                layer_names_and_shapes = self.get_layer_names_and_shapes_from_lora(state_dict_shapes)
+            else:
+                layer_names_and_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
-        if model_class == "diffusers":
-            diffusers_state_dict = state_dict
-        elif model_class == "kohya":
-            matched_keys = model_classes[model_class]
+            model_classes = self.classify_keys(layer_names_and_shapes)
+            
+            if len(model_classes) > 1:
+                raise ValueError("we don't deal with mixture of loras right now")
+            model_class = list(model_classes.keys())[0]
 
-            # extract state_dict that match
-            matched_state_dict = {
-                k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                if self._remove_lora_suffix(k) in matched_keys 
-            }
-            assert len(state_dict) == 0
-            assert len(matched_state_dict) > 0
-            diffusers_state_dict = convert_sd_scripts_to_ai_toolkit(matched_state_dict)
-        else:
-            diffusers_state_dict = None
+            if model_class == "diffusers":
+                diffusers_state_dict = state_dict
+            elif model_class == "kohya":
+                matched_keys = model_classes[model_class]
 
-        return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes
+                # extract state_dict that match
+                matched_state_dict = {
+                    k: state_dict.pop(k) for k in list(state_dict.keys()) 
+                    if self._remove_lora_suffix(k) in matched_keys 
+                }
+                assert len(state_dict) == 0
+                assert len(matched_state_dict) > 0
+                diffusers_state_dict = convert_sd_scripts_to_ai_toolkit(matched_state_dict)
+            else:
+                diffusers_state_dict = None
+
+            return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes, error
+
+        except Exception as e:
+            error = str(e)
+            return is_lora, model_class, diffusers_state_dict, layer_names_and_shapes, error
