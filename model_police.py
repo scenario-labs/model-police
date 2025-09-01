@@ -5,8 +5,6 @@ from pathlib import Path
 from gguf.gguf_reader import GGUFReader
 from safetensors import safe_open
 
-from kohya import convert_sd_scripts_to_ai_toolkit
-
 logger = logging.getLogger(__name__)
 
 
@@ -212,11 +210,10 @@ class ModelPolice:
                 # extract state_dict that match
                 matched_state_dict = {
                     k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                    if self._remove_lora_suffix(k) in matched_keys 
+                    if self.remove_lora_suffix(k) in matched_keys 
                 }
-                assert len(state_dict) == 0
                 assert len(matched_state_dict) > 0
-
+                model_classes[model_class] = matched_state_dict
 
             return is_lora, model_classes, layer_names_with_shapes, error
 
