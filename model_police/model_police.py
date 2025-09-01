@@ -249,3 +249,17 @@ class ModelPolice:
         except Exception as e:
             error = str(e)
             return is_lora, model_classes, layer_names_with_shapes, error
+
+    @staticmethod
+    def get_diffusers_components(layer_names_with_or_without_shapes):
+        if not layer_names_with_or_without_shapes:
+            return []
+
+        first_key = layer_names_with_or_without_shapes[0]
+        if "." not in first_key:
+            raise ValueError("Requires diffusers model format")
+
+        prefixes = [k.split(".")[0] for k in layer_names_with_or_without_shapes]
+        
+        return sorted(list(set(prefixes)))
+    

@@ -29,6 +29,10 @@ if model_class == "flux_kohya":
     from conversions import kohya
     state_dict = kohya.convert_sd_scripts_to_ai_toolkit(state_dict)
 
+if (not is_lora and "diffusers" in model_class):
+    components = validator.get_diffusers_components(layer_names_with_shapes)
+    print(components)  # ["vae", "safety_checker", "unet", "text_encoder"]
+
 ```
 
 Following notes:
