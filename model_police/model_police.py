@@ -67,7 +67,7 @@ class ModelPolice:
                     prefix = f"{prefix}."  # adding a point
                 
                 name = Path(f).name
-                checkpoint_list.append((prefix, checkpoint_path / name))
+                checkpoint_list.append((prefix, checkpoint_path / f))
         else:
             checkpoint_list = [("", checkpoint_path)]
 
