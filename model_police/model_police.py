@@ -48,6 +48,10 @@ class ModelPolice:
     @staticmethod
     def read_state_dict_from_checkpoint(checkpoint_path):
         checkpoint_path = Path(checkpoint_path)
+
+        if not checkpoint_path.exits():
+            raise ValueError(f"Path {checkpoint_path} does not exist")
+
         if checkpoint_path.is_dir():
             checkpoint_list = []
             checkpoints = glob.glob("**/*.safetensors", root_dir=checkpoint_path, recursive=True)
@@ -230,7 +234,7 @@ class ModelPolice:
                 # input is a state dict
                 state_dict = state_dict_or_checkpoint_path
 
-            elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):
+            elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):                
                 state_dict = self.read_state_dict_from_checkpoint(state_dict_or_checkpoint_path)
             
             else:
