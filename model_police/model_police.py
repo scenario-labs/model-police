@@ -18,6 +18,7 @@ class ModelPolice:
     _lora_down_suffixes: list[str] = []
     _lora_up_suffixes: list[str] = []
     _lora_ignore_suffixes: list[str] = []
+    _full_ignore_suffixes: list[str] = []
 
 
     def __init__(self):
@@ -29,7 +30,9 @@ class ModelPolice:
             self._lora_down_suffixes = [s.strip() for s in f.readlines()]
         with open(here / "lora_ignore_suffixes.txt") as f:
             self._lora_ignore_suffixes = [s.strip() for s in f.readlines()]
-        
+        with open(here / "full_ignore_suffixes.txt") as f:
+            self._full_ignore_suffixes = [s.strip() for s in f.readlines()]        
+
         for dict_filepath in (here / "model_dictionaries").iterdir():
             dict_name = dict_filepath.name.removesuffix(".csv")
             ## dictname is in the form "modelclass_framework"
@@ -99,7 +102,7 @@ class ModelPolice:
     @staticmethod
     def state_dict_shapes_to_list(state_dict_shapes):
         return sorted([
-            f"{k},{','.join(map(str, v))}" for k, v in state_dict_shapes.items()
+            f"{self.remove_full_suffix(k)},{','.join(map(str, v))}" for k, v in state_dict_shapes.items()
         ])
 
 
@@ -129,6 +132,12 @@ class ModelPolice:
                 return key.removesuffix(s)
         return key
 
+
+    def remove_full_suffix(self, key):
+        for s in self._full_ignore_suffixes:
+            if key.endswith(s):
+                return key.removesuffix(s)
+        return key
 
     def split_key_and_lora_suffix(self, key):
         for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
