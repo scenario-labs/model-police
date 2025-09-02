@@ -56,6 +56,8 @@ From diffusers:
 ```bash
 pip install -r requirements-diffusers.txt
 
+dump_layer_names_with_shapes_from_diffusers_pipeline stable-diffusion-v1-5/stable-diffusion-v1-5 sd1-5 diffusers
+dump_layer_names_with_shapes_from_diffusers_pipeline stabilityai/stable-diffusion-xl-base-1.0 sdxl diffusers
 dump_layer_names_with_shapes_from_diffusers_pipeline black-forest-labs/FLUX.1-dev flux diffusers
 ```
 

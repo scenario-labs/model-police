@@ -209,20 +209,25 @@ class ModelPolice:
                     _k = self.replace_key_numbers_with_zero(k)
                 else:
                     _k = k
+
+                # if _k  not in _layername_and_shape_to_dictname:
+                #     print(k)
+
                 if _k in _layername_and_shape_to_dictname and matched_dictname in _layername_and_shape_to_dictname[_k]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
 
-            model_classes[matched_dictname] = matched_keys
-            input_keys = remaining_keys
+            if len(matched_keys):
+                model_classes[matched_dictname] = matched_keys
 
+            input_keys = remaining_keys
             if not len(remaining_keys):
                 break
 
         if len(input_keys) > 0:
             model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
-
+        
         return model_classes
 
 
@@ -255,8 +260,12 @@ class ModelPolice:
                 layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
             model_classes = self.classify_keys(layer_names_with_shapes, is_lora=is_lora)
+            
+            for k, v in model_classes.items():
+                print(k, len(v))
+            
+            for model_class in list(model_classes.keys()):     
 
-            for model_class in list(model_classes.keys()):            
                 matched_keys = model_classes[model_class]
 
                 # extract state_dict that match
