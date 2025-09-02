@@ -1,0 +1,8 @@
+encoder.mid_block.attentions.0.to_q,512,512
+encoder.mid_block.attentions.0.to_k,512,512
+encoder.mid_block.attentions.0.to_v,512,512
+encoder.mid_block.attentions.0.to_out.0,512,512
+decoder.mid_block.attentions.0.to_q,512,512
+decoder.mid_block.attentions.0.to_k,512,512
+decoder.mid_block.attentions.0.to_v,512,512
+decoder.mid_block.attentions.0.to_out.0,512,512
