@@ -121,7 +121,7 @@ class ModelPolice:
         for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_alpha_suffixes:
             if key.endswith(s):
                 return key.removesuffix(s)
-        raise ValueError(f"{key} is not a lora key")
+        return key
 
 
     def split_key_and_lora_suffix(self, key):
@@ -174,7 +174,7 @@ class ModelPolice:
             _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
         else:
             input_keys = [ k.split(",")[0] for k in layer_names_with_shapes]
-            _layername_and_shape_to_dictname = { k.split(",")[0]: v for k, v in self._layername_and_shape_to_dictname }
+            _layername_and_shape_to_dictname = { k.split(",")[0]: v for k, v in self._layername_and_shape_to_dictname.items() }
 
         # check if it's not lora keys
         if self.is_lora_key(input_keys[0]):
@@ -186,7 +186,7 @@ class ModelPolice:
         dictname_votes = {}
         for k in input_keys:
             if not is_lora: # in case number of layers change in config
-                k = replace_key_numbers_with_zero(k)
+                k = self.replace_key_numbers_with_zero(k)
             if k in _layername_and_shape_to_dictname:
                 for d in _layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
@@ -201,7 +201,7 @@ class ModelPolice:
             remaining_keys = []
             for k in input_keys:
                 if not is_lora: # in case number of layers change in config
-                    _k = replace_key_numbers_with_zero(k)
+                    _k = self.replace_key_numbers_with_zero(k)
                 else:
                     _k = k
                 if matched_dictname in _layername_and_shape_to_dictname[_k]:
@@ -263,6 +263,7 @@ class ModelPolice:
 
         except Exception as e:
             error = str(e)
+            raise e
             return is_lora, model_classes, layer_names_with_shapes, error
 
     @staticmethod
