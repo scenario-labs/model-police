@@ -269,7 +269,7 @@ class ModelPolice:
                 # extract state_dict that match
                 matched_state_dict = {
                     k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                    if self.remove_lora_suffix(k) in matched_keys 
+                    if self.remove_full_suffix(self.remove_lora_suffix(k)) in matched_keys  # in this order because .weight should be removed after .lora_up.weight
                 }
                 assert len(matched_state_dict) > 0
                 model_classes[model_class] = matched_state_dict
