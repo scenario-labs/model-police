@@ -2,6 +2,7 @@ import glob
 import logging
 import re
 import torch
+import traceback
 
 from pathlib import Path
 from gguf.gguf_reader import GGUFReader
