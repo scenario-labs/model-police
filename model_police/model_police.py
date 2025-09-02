@@ -228,7 +228,7 @@ class ModelPolice:
                 # input is a state dict
                 state_dict = state_dict_or_checkpoint_path
 
-            elif isinstance(state_dict_or_checkpoint_path, str):
+            elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):
                 state_dict = self.read_state_dict_from_checkpoint(state_dict_or_checkpoint_path)
             
             else:
