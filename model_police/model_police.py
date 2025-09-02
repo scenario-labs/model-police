@@ -227,6 +227,9 @@ class ModelPolice:
             model_classes[matched_dictname] = matched_keys
             input_keys = remaining_keys
 
+            if not len(remaining_keys):
+                break
+
         if len(input_keys) > 0:
             model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
 
