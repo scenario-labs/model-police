@@ -68,11 +68,11 @@ class ModelPolice:
         for prefix, checkpoint_path in checkpoint_list:
             # input is a safetensors or gguf file
             state_dict = {}
-            if checkpoint_path.suffix == ".safetensors":
+            if Path(checkpoint_path).suffix == ".safetensors":
                 with safe_open(checkpoint_path, framework="pt", device="cpu") as f:
                     for key in f.keys():
                         state_dict[f"{prefix}{key}"] = f.get_tensor(key)
-            elif checkpoint_path.suffix == ".gguf":
+            elif Path(checkpoint_path).suffix == ".gguf":
                 reader = GGUFReader(checkpoint_path)
                 for tensor in reader.tensors:
                     state_dict[f"{prefix}{tensor.name}"] = tensor.data
