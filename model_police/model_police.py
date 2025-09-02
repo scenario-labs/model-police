@@ -228,8 +228,8 @@ class ModelPolice:
 
         if len(input_keys) > 0:
             model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
-        for k in input_keys:
-            print(k)
+        # for k in input_keys:
+        #     print(k)
         return model_classes
 
 
