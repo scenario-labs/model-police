@@ -1130,11 +1130,11 @@ unet.conv_norm_out.weight,320
 unet.conv_norm_out.bias,320
 unet.conv_out.weight,4,320,3,3
 unet.conv_out.bias,4
-safety_checker..concept_embeds,17,768
-safety_checker..concept_embeds,17,768
-safety_checker..concept_embeds_weights,17
-safety_checker..special_care_embeds,3,768
-safety_checker..special_care_embeds_weights,3
+safety_checker.concept_embeds,17,768
+safety_checker.concept_embeds,17,768
+safety_checker.concept_embeds_weights,17
+safety_checker.special_care_embeds,3,768
+safety_checker.special_care_embeds_weights,3
 safety_checker.vision_model.vision_model.embeddings.position_ids,1,257
 safety_checker.vision_model.vision_model.embeddings.class_embedding,1024
 safety_checker.vision_model.vision_model.embeddings.position_ids,1,257

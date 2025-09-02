@@ -44,10 +44,10 @@ def main():
                     if (w:= getattr(module, weight_suffix, None)) is not None:
                         shape_to_list = ','.join(map(str, list(w.shape)))
 
-                        key_without_prefix = f"{module_name}.{weight_suffix},{shape_to_list}"
+                        key_without_prefix = f"{module_name + '.' if module_name else '' }{weight_suffix},{shape_to_list}"
                         component_keys.append(key_without_prefix)
 
-                        key_with_prefix = f"{component_name}.{module_name}.{weight_suffix},{shape_to_list}"
+                        key_with_prefix = f"{component_name}.{module_name + '.' if module_name else ''}{weight_suffix},{shape_to_list}"
                         if args.model and args.framework:
                             full_model_file.write(key_with_prefix + "\n")
                         else:

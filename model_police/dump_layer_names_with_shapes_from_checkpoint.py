@@ -47,6 +47,9 @@ def main():
             print("Classes:")
             for model_class in model_classes:
                 print(f"{model_class}({len(model_classes[model_class])})")
+                if len(model_classes[model_class]) < 500:
+                    for k in list(model_classes[model_class].keys())[:10]:
+                        print("    ", k)
         else:
             print("No class found")
 

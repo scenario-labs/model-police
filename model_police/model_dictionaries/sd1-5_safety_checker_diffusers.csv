@@ -1,8 +1,8 @@
-.concept_embeds,17,768
-.concept_embeds,17,768
-.concept_embeds_weights,17
-.special_care_embeds,3,768
-.special_care_embeds_weights,3
+concept_embeds,17,768
+concept_embeds,17,768
+concept_embeds_weights,17
+special_care_embeds,3,768
+special_care_embeds_weights,3
 vision_model.vision_model.embeddings.position_ids,1,257
 vision_model.vision_model.embeddings.class_embedding,1024
 vision_model.vision_model.embeddings.position_ids,1,257
