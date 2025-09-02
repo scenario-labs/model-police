@@ -54,7 +54,10 @@ class ModelPolice:
 
         if checkpoint_path.is_dir():
             checkpoint_list = []
-            checkpoints = glob.glob("**/*.safetensors", root_dir=checkpoint_path, recursive=True)
+            checkpoints = (
+                glob.glob("**/*.safetensors", root_dir=checkpoint_path, recursive=True) +
+                glob.glob("**/*.gguf", root_dir=checkpoint_path, recursive=True)
+            )
             for f in checkpoints:
                 prefix = str(Path(f).parent)
                 if prefix == ".":  # .parent returns "." when the file is at the root of folder

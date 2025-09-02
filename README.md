@@ -45,7 +45,10 @@ Following notes:
 From a checkpoint:
 
 ```bash
-dump_layer_names_with_shapes_from_checkpoint model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors flux kohya 
+dump_layer_names_with_shapes_from_checkpoint keys model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors 
+
+# or save the dictionary in the lib
+dump_layer_names_with_shapes_from_checkpoint dump model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors flux kohya 
 ```
 
 From diffusers:
@@ -62,7 +65,7 @@ dump_layer_names_with_shapes_from_diffusers_pipeline black-forest-labs/FLUX.1-de
 3 lora suffixes dictionaries: 
 - `lora_up_suffixes.txt`
 - `lora_down_suffixes.txt`
-- `lora_alpha_suffixes.txt`
+- `lora_ignore_suffixes.txt`
 
 Model dictionaries are in `model_dictionaries` folder. Naming convention is `modelclass_framework(*).csv`. For example: `flux_diffusers.csv`, `flux_kohya.csv`, or `flux_kohya_1.csv`
 
