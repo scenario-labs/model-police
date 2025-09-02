@@ -49,7 +49,7 @@ class ModelPolice:
     def read_state_dict_from_checkpoint(checkpoint_path):
         checkpoint_path = Path(checkpoint_path)
 
-        if not checkpoint_path.exits():
+        if not checkpoint_path.exists():
             raise ValueError(f"Path {checkpoint_path} does not exist")
 
         if checkpoint_path.is_dir():
