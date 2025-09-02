@@ -185,7 +185,14 @@ class ModelPolice:
             _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
         else:
             input_keys = [ k.split(",")[0] for k in layer_names_with_shapes ]  # removing shape
-            _layername_and_shape_to_dictname = { k.split(",")[0]: v for k, v in self._layername_and_shape_to_dictname.items() }
+            
+            _layername_and_shape_to_dictname = {}
+            for k, v in self._layername_and_shape_to_dictname.items(): 
+                k = k.split(",")[0]
+                if k in _layername_and_shape_to_dictname: # avoid overrides
+                    _layername_and_shape_to_dictname[k].extend(v)
+                else:
+                    _layername_and_shape_to_dictname[k] = v.copy()
 
         # vote for dictname
         dictname_votes = {}
