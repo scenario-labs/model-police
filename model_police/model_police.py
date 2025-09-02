@@ -270,6 +270,7 @@ class ModelPolice:
 
         except Exception as e:
             error = str(e)
+            print(traceback.format_exc())
             return is_lora, model_classes, layer_names_with_shapes, error
 
     @staticmethod
