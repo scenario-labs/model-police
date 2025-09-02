@@ -173,7 +173,7 @@ class ModelPolice:
             input_keys = layer_names_with_shapes.copy()
             _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
         else:
-            input_keys = [ k.split(",")[0] for k in layer_names_with_shapes]
+            input_keys = [ k.split(",")[0] for k in layer_names_with_shapes ]  # removing shape
             _layername_and_shape_to_dictname = { k.split(",")[0]: v for k, v in self._layername_and_shape_to_dictname.items() }
 
         # check if it's not lora keys
@@ -204,7 +204,7 @@ class ModelPolice:
                     _k = self.replace_key_numbers_with_zero(k)
                 else:
                     _k = k
-                if matched_dictname in _layername_and_shape_to_dictname[_k]:
+                if _k in _layername_and_shape_to_dictname and matched_dictname in _layername_and_shape_to_dictname[_k]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
