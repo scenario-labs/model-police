@@ -263,7 +263,6 @@ class ModelPolice:
 
         except Exception as e:
             error = str(e)
-            raise e
             return is_lora, model_classes, layer_names_with_shapes, error
 
     @staticmethod
