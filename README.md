@@ -45,7 +45,7 @@ Following notes:
 From a checkpoint:
 
 ```bash
-dump_layer_names_with_shapes_from_checkpoint model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors > model_dictionaries/flux_kohya.csv
+dump_layer_names_with_shapes_from_checkpoint model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors flux kohya 
 ```
 
 From diffusers:
@@ -53,7 +53,7 @@ From diffusers:
 ```bash
 pip install -r requirements-diffusers.txt
 
-dump_layer_names_with_shapes_from_diffusers_pipeline "black-forest-labs/FLUX.1-dev" > model_dictionaries/flux_diffusers.csv
+dump_layer_names_with_shapes_from_diffusers_pipeline black-forest-labs/FLUX.1-dev flux diffusers
 ```
 
 

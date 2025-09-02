@@ -184,7 +184,7 @@ class ModelPolice:
                         dictname_votes[d] += 1
 
         model_classes = {}
-        for matched_dictname in sorted(dictname_votes, key=dictname_votes.get):
+        for matched_dictname in sorted(dictname_votes, key=dictname_votes.get, reverse=True):
             # find keys 
             matched_keys = []
             remaining_keys = []
