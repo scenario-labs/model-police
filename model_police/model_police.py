@@ -172,7 +172,7 @@ class ModelPolice:
     def replace_key_numbers_with_zero(key):
         """ this method is useful when the number of layer or blocks might vary"""
         key = key.split(",")
-        key[0] = re.sub('\d+', '0', key[0])
+        key[0] = re.sub('\.\d+\.', '.0.', key[0])
         return ','.join(key)
 
 
@@ -190,8 +190,8 @@ class ModelPolice:
         # vote for dictname
         dictname_votes = {}
         for k in input_keys:
-            if not is_lora: # in case number of layers change in config
-                k = self.replace_key_numbers_with_zero(k)
+            # if not is_lora: # in case number of layers change in config
+            #     k = self.replace_key_numbers_with_zero(k)
             if k in _layername_and_shape_to_dictname:
                 for d in _layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
@@ -205,10 +205,11 @@ class ModelPolice:
             matched_keys = []
             remaining_keys = []
             for k in input_keys:
-                if not is_lora: # in case number of layers change in config
-                    _k = self.replace_key_numbers_with_zero(k)
-                else:
-                    _k = k
+                _k = k
+                # if not is_lora: # in case number of layers change in config
+                #     _k = self.replace_key_numbers_with_zero(k)
+                # else:
+                #     _k = k
 
                 # if _k  not in _layername_and_shape_to_dictname:
                 #     print(k)
@@ -227,7 +228,8 @@ class ModelPolice:
 
         if len(input_keys) > 0:
             model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
-        
+        for k in input_keys:
+            print(k)
         return model_classes
 
 
