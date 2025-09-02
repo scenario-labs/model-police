@@ -261,8 +261,8 @@ class ModelPolice:
 
             model_classes = self.classify_keys(layer_names_with_shapes, is_lora=is_lora)
             
-            for k, v in model_classes.items():
-                print(k, len(v))
+            # for k, v in model_classes.items():
+            #     print(k, len(v))
             
             for model_class in list(model_classes.keys()):     
 
