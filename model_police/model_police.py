@@ -17,7 +17,7 @@ class ModelPolice:
     _layername_and_shape_to_dictname: dict[str, str] = {}
     _lora_down_suffixes: list[str] = []
     _lora_up_suffixes: list[str] = []
-    _lora_alpha_suffixes: list[str] = []
+    _lora_ignore_suffixes: list[str] = []
 
 
     def __init__(self):
@@ -27,8 +27,8 @@ class ModelPolice:
             self._lora_up_suffixes = [s.strip() for s in f.readlines()]
         with open(here / "lora_down_suffixes.txt") as f:
             self._lora_down_suffixes = [s.strip() for s in f.readlines()]
-        with open(here / "lora_alpha_suffixes.txt") as f:
-            self._lora_alpha_suffixes = [s.strip() for s in f.readlines()]
+        with open(here / "lora_ignore_suffixes.txt") as f:
+            self._lora_ignore_suffixes = [s.strip() for s in f.readlines()]
         
         for dict_filepath in (here / "model_dictionaries").iterdir():
             dict_name = dict_filepath.name.removesuffix(".csv")
@@ -98,7 +98,7 @@ class ModelPolice:
 
 
     def is_lora_key(self, key):
-        for suffix in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_alpha_suffixes:
+        for suffix in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
             if key.endswith(suffix):
                 return True
         return False
@@ -118,14 +118,14 @@ class ModelPolice:
 
 
     def remove_lora_suffix(self, key):
-        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_alpha_suffixes:
+        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
             if key.endswith(s):
                 return key.removesuffix(s)
         return key
 
 
     def split_key_and_lora_suffix(self, key):
-        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_alpha_suffixes:
+        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
             if key.endswith(s):
                 return key.removesuffix(s), s
         raise ValueError(f"{key} is not a lora key")
