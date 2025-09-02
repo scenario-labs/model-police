@@ -99,8 +99,7 @@ class ModelPolice:
         }
 
 
-    @staticmethod
-    def state_dict_shapes_to_list(state_dict_shapes):
+    def state_dict_shapes_to_list(self, state_dict_shapes):
         return sorted([
             f"{self.remove_full_suffix(k)},{','.join(map(str, v))}" for k, v in state_dict_shapes.items()
         ])
@@ -138,6 +137,7 @@ class ModelPolice:
             if key.endswith(s):
                 return key.removesuffix(s)
         return key
+
 
     def split_key_and_lora_suffix(self, key):
         for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
