@@ -26,10 +26,10 @@ def main():
         raise Exception(error)
 
     if args.model and args.framework:
-        full_model_dict = here / "model_dictionaries" / f"{args.model}_{args.framework}.csv".lower()
-        if full_model_dict.exists() and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
+        model_dict = here / "model_dictionaries" / f"{args.model}_{'lora' if is_lora else 'full'}_{args.framework}.csv".lower()
+        if model_dict.exists() and input(f"File {model_dict} already exists, override it ? [y/N]") != "y":
             exit()
-        with open(full_model_dict, "w") as f:
+        with open(model_dict, "w") as f:
             for k in layer_names_with_shapes:
                 f.write(k + "\n")
 

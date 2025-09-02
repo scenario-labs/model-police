@@ -21,7 +21,7 @@ def main():
     pipe = AutoPipelineForText2Image.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
 
     if args.model and args.framework:
-        full_model_dict = here / "model_dictionaries" / f"{args.model}_{args.framework}.csv".lower()
+        full_model_dict = here / "model_dictionaries" / f"{args.model}_full_{args.framework}.csv".lower()
         if full_model_dict.exists() and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
             exit()
         full_model_file = open(full_model_dict, "w")
