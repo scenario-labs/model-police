@@ -24,7 +24,7 @@ def main():
 
     if args.model and args.framework:
         full_model_dict = here / "model_dictionaries" / f"{args.model}_full_{args.framework}.csv".lower()
-        if full_model_dict.exists() and (force or input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y"):
+        if full_model_dict.exists() and not force and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
             exit()
         full_model_file = open(full_model_dict, "w")
 
@@ -35,8 +35,12 @@ def main():
     
         try:
             component_keys = []
+
             for module_name, module in component.named_modules():
-                for weight_suffix in ["weight", "bias"]:
+                for weight_suffix in [
+                    "weight", "bias", "concept_embeds", "position_ids", "concept_embeds", "concept_embeds_weights",
+                    "special_care_embeds", "special_care_embeds_weights", "class_embedding", "position_ids"
+                ]:
                     if (w:= getattr(module, weight_suffix, None)) is not None:
                         shape_to_list = ','.join(map(str, list(w.shape)))
 

@@ -246,6 +246,8 @@ vae.quant_conv.weight,8,8,1,1
 vae.quant_conv.bias,8
 vae.post_quant_conv.weight,4,4,1,1
 vae.post_quant_conv.bias,4
+text_encoder.text_model.embeddings.position_ids,1,77
+text_encoder.text_model.embeddings.position_ids,1,77
 text_encoder.text_model.embeddings.token_embedding.weight,49408,768
 text_encoder.text_model.embeddings.position_embedding.weight,77,768
 text_encoder.text_model.encoder.layers.0.self_attn.k_proj.weight,768,768
@@ -442,6 +444,8 @@ text_encoder.text_model.encoder.layers.11.layer_norm2.weight,768
 text_encoder.text_model.encoder.layers.11.layer_norm2.bias,768
 text_encoder.text_model.final_layer_norm.weight,768
 text_encoder.text_model.final_layer_norm.bias,768
+text_encoder_2.text_model.embeddings.position_ids,1,77
+text_encoder_2.text_model.embeddings.position_ids,1,77
 text_encoder_2.text_model.embeddings.token_embedding.weight,49408,1280
 text_encoder_2.text_model.embeddings.position_embedding.weight,77,1280
 text_encoder_2.text_model.encoder.layers.0.self_attn.k_proj.weight,1280,1280

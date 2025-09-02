@@ -246,6 +246,8 @@ vae.quant_conv.weight,8,8,1,1
 vae.quant_conv.bias,8
 vae.post_quant_conv.weight,4,4,1,1
 vae.post_quant_conv.bias,4
+text_encoder.text_model.embeddings.position_ids,1,77
+text_encoder.text_model.embeddings.position_ids,1,77
 text_encoder.text_model.embeddings.token_embedding.weight,49408,768
 text_encoder.text_model.embeddings.position_embedding.weight,77,768
 text_encoder.text_model.encoder.layers.0.self_attn.k_proj.weight,768,768
@@ -1128,6 +1130,14 @@ unet.conv_norm_out.weight,320
 unet.conv_norm_out.bias,320
 unet.conv_out.weight,4,320,3,3
 unet.conv_out.bias,4
+safety_checker..concept_embeds,17,768
+safety_checker..concept_embeds,17,768
+safety_checker..concept_embeds_weights,17
+safety_checker..special_care_embeds,3,768
+safety_checker..special_care_embeds_weights,3
+safety_checker.vision_model.vision_model.embeddings.position_ids,1,257
+safety_checker.vision_model.vision_model.embeddings.class_embedding,1024
+safety_checker.vision_model.vision_model.embeddings.position_ids,1,257
 safety_checker.vision_model.vision_model.embeddings.patch_embedding.weight,1024,3,14,14
 safety_checker.vision_model.vision_model.embeddings.position_embedding.weight,257,1024
 safety_checker.vision_model.vision_model.pre_layrnorm.weight,1024

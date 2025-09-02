@@ -1,3 +1,5 @@
+text_model.embeddings.position_ids,1,77
+text_model.embeddings.position_ids,1,77
 text_model.embeddings.token_embedding.weight,49408,1280
 text_model.embeddings.position_embedding.weight,77,1280
 text_model.encoder.layers.0.self_attn.k_proj.weight,1280,1280
