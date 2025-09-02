@@ -109,9 +109,12 @@ class ModelPolice:
     def is_lora(self, state_dict, first_key_only=False):
         is_lora = None
         for key in state_dict:
+
+            _next = False
             for suffix in self._lora_ignore_suffixes:
                 if key.endswith(suffix):
-                    continue
+                    _next = True 
+            if _next: continue
 
             _is_lora_key = False
             for suffix in self._lora_down_suffixes + self._lora_up_suffixes:
