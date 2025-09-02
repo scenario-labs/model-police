@@ -28,21 +28,22 @@ def main():
 
     # print layer names
     for component_name, component in list(pipe.components.items()):
-        if component is None or not hasattr(component, "named_modules"):
+        if component is None or not hasattr(component, "named_parameters"):
             continue
     
         try:
             component_keys = []
-            for module_name, module in component.named_modules():    
-                if isinstance(module, torch.nn.Linear):
-                    key_without_prefix = f"{module_name},{module.in_features},{module.out_features}"
-                    component_keys.append(key_without_prefix)
+            for module_name, param in component.named_parameters(): 
+                print(list(param.shape))  
+                shape_to_list = ','.join(map(str, list(param.shape)))
+                key_without_prefix = f"{module_name},{shape_to_list}"
+                component_keys.append(key_without_prefix)
 
-                    key_with_prefix = f"{component_name}.{module_name},{module.in_features},{module.out_features}"
-                    if args.model and args.framework:
-                        full_model_file.write(key_with_prefix + "\n")
-                    else:
-                        print(key_with_prefix) 
+                key_with_prefix = f"{component_name}.{module_name},{shape_to_list}"
+                if args.model and args.framework:
+                    full_model_file.write(key_with_prefix + "\n")
+                else:
+                    print(key_with_prefix) 
             if component_keys and args.model and args.framework:
                 component_model_dict = here / "model_dictionaries" / f"{args.model}_{component_name}_{args.framework}.csv".lower()
                 if not component_model_dict.exists() or input(f"File {component_model_dict} already exists, override it ? [y/N]") == "y":
@@ -53,6 +54,7 @@ def main():
         
         except Exception as e:
             print(str(e))
+            raise e
 
     if args.model and args.framework:
         full_model_file.close()

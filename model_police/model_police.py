@@ -101,21 +101,23 @@ class ModelPolice:
 
     def state_dict_shapes_to_list(self, state_dict_shapes):
         return sorted([
-            f"{self.remove_full_suffix(k)},{','.join(map(str, v))}" for k, v in state_dict_shapes.items()
+            f"{k},{','.join(map(str, v))}" for k, v in state_dict_shapes.items()
         ])
-
-
-    def is_lora_key(self, key):
-        for suffix in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
-            if key.endswith(suffix):
-                return True
-        return False
 
 
     def is_lora(self, state_dict, first_key_only=False):
         is_lora = None
         for key in state_dict:
-            _is_lora_key = self.is_lora_key(key)
+            for suffix in self._lora_ignore_suffixes:
+                if key.endswith(suffix):
+                    continue
+
+            _is_lora_key = False
+            for suffix in self._lora_down_suffixes + self._lora_up_suffixes:
+                if key.endswith(suffix):
+                    _is_lora_key = True
+                    break
+
             if is_lora is None:
                 is_lora = _is_lora_key 
             elif is_lora != _is_lora_key:
@@ -127,13 +129,6 @@ class ModelPolice:
 
     def remove_lora_suffix(self, key):
         for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
-            if key.endswith(s):
-                return key.removesuffix(s)
-        return key
-
-
-    def remove_full_suffix(self, key):
-        for s in self._full_ignore_suffixes:
             if key.endswith(s):
                 return key.removesuffix(s)
         return key
@@ -190,12 +185,6 @@ class ModelPolice:
         else:
             input_keys = [ k.split(",")[0] for k in layer_names_with_shapes ]  # removing shape
             _layername_and_shape_to_dictname = { k.split(",")[0]: v for k, v in self._layername_and_shape_to_dictname.items() }
-
-        # check if it's not lora keys
-        if self.is_lora_key(input_keys[0]):
-            raise ValueError(
-                "Classification requires layer names and shapes. Use 'get_layer_names_with_shapes_from_lora()'"
-            )
 
         # vote for dictname
         dictname_votes = {}
@@ -272,7 +261,7 @@ class ModelPolice:
                 # extract state_dict that match
                 matched_state_dict = {
                     k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                    if self.remove_full_suffix(self.remove_lora_suffix(k)) in matched_keys  # in this order because .weight should be removed after .lora_up.weight
+                    if self.remove_lora_suffix(k) in matched_keys
                 }
                 assert len(matched_state_dict) > 0
                 model_classes[model_class] = matched_state_dict
