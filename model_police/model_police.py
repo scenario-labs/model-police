@@ -1,5 +1,6 @@
 import glob
 import logging
+import re
 import torch
 
 from pathlib import Path
@@ -156,11 +157,19 @@ class ModelPolice:
         return final_keys
 
 
-    def classify_keys(self, layer_names_with_shapes, check_shapes=True):
+    @staticmethod
+    def replace_key_numbers_with_zero(key):
+        """ this method is useful when the number of layer or blocks might vary"""
+        key = key.split(",")
+        key[0] = re.sub('\d+', '0', key[0])
+        return ','.join(key)
+
+
+    def classify_keys(self, layer_names_with_shapes, is_lora=True):
         if not layer_names_with_shapes:
             return {}
 
-        if check_shapes:
+        if is_lora:
             input_keys = layer_names_with_shapes.copy()
             _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
         else:
@@ -176,6 +185,8 @@ class ModelPolice:
         # vote for dictname
         dictname_votes = {}
         for k in input_keys:
+            if not is_lora: # in case number of layers change in config
+                k = replace_key_numbers_with_zero(k)
             if k in _layername_and_shape_to_dictname:
                 for d in _layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
@@ -189,7 +200,9 @@ class ModelPolice:
             matched_keys = []
             remaining_keys = []
             for k in input_keys:
-                if matched_dictname in _layername_and_shape_to_dictname[k]:
+                if not is_lora: # in case number of layers change in config
+                    k_0 = replace_key_numbers_with_zero(k)
+                if matched_dictname in _layername_and_shape_to_dictname[k_0]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
@@ -231,7 +244,7 @@ class ModelPolice:
             else:
                 layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
-            model_classes = self.classify_keys(layer_names_with_shapes, check_shapes=is_lora)
+            model_classes = self.classify_keys(layer_names_with_shapes, is_lora=is_lora)
 
             for model_class in list(model_classes.keys()):            
                 matched_keys = model_classes[model_class]
