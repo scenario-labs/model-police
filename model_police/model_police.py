@@ -48,7 +48,7 @@ class ModelPolice:
     @staticmethod
     def read_state_dict_from_checkpoint(checkpoint_path):
         checkpoint_path = Path(checkpoint_path)
-        if checkpoint_path.isdir():
+        if checkpoint_path.is_dir():
             checkpoint_list = []
             checkpoints = glob.glob("**/*.safetensors", root_dir=checkpoint_path, recursive=True)
             for f in checkpoints:
@@ -201,8 +201,10 @@ class ModelPolice:
             remaining_keys = []
             for k in input_keys:
                 if not is_lora: # in case number of layers change in config
-                    k_0 = replace_key_numbers_with_zero(k)
-                if matched_dictname in _layername_and_shape_to_dictname[k_0]:
+                    _k = replace_key_numbers_with_zero(k)
+                else:
+                    _k = k
+                if matched_dictname in _layername_and_shape_to_dictname[_k]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
