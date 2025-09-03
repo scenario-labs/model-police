@@ -48,7 +48,7 @@ checkpoint keys model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors
 checkpoint dump model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors flux kohya 
 ```
 
-For a dump from a diffusers pipeline, you can use the script `dump_from_diffusers` which takes as argument the repo_id, as well as full model name and framework name. It will create multiple model dictionaries and dump them in the `model_dictionaries` folder. Type will be automatically added to model dictionary names.
+For a dump from a diffusers pipeline, you can use the script `dump_from_diffusers` which takes as argument the repo_id, as well as full model name and framework name. It will create multiple model dictionaries and dump them in the `model_dictionaries` folder. Type will be automatically added to model dictionary names. If model and framework not given, it will dump the keys to the standard output.
 
 ```bash
 pip install -r requirements-diffusers.txt
