@@ -17,8 +17,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("command", help="dump, keys, classify")
     parser.add_argument("checkpoint")
-    parser.add_argument("model", help="Flux, SDXL, SD15...", default="", nargs='?')
-    parser.add_argument("framework", help="Diffusers, Kohya, Unknown", default="", nargs='?')
+    parser.add_argument("model", help="Flux, SDXL, SD15... (only for command 'dump')", default="", nargs='?')
+    parser.add_argument("framework", help="Diffusers, Kohya, Unknown.. (only for command 'dump')", default="", nargs='?')
     args = parser.parse_args()
 
     is_lora, model_classes, layer_names_with_shapes, error = model_police_officer.inspect(args.checkpoint)
