@@ -3,7 +3,7 @@ add_embedding.linear_1.weight,1280,2816
 add_embedding.linear_2.bias,1280
 add_embedding.linear_2.weight,1280,1280
 conv_in.bias,320
-conv_in.weight,320,4,3,3
+conv_in.weight,320,9,3,3
 conv_norm_out.bias,320
 conv_norm_out.weight,320
 conv_out.bias,4

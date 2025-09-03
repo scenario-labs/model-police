@@ -72,7 +72,7 @@ class ModelPolice:
 
 
     @staticmethod
-    def get_checkpoint_list_with_prefixes(checkpoint_dir):
+    def get_checkpoint_list_with_subfolders(checkpoint_dir):
         checkpoint_dir = Path(checkpoint_dir)
 
         if not checkpoint_dir.exists():
@@ -81,20 +81,16 @@ class ModelPolice:
         if not checkpoint_dir.is_dir():
             raise ValueError(f"Path {checkpoint_dir} is not a folder")
 
-        checkpoint_dir_with_prefixes = []
+        checkpoint_dir_with_subfolders = []
         checkpoints = (
             glob.glob("**/*.safetensors", root_dir=checkpoint_dir, recursive=True) +
             glob.glob("**/*.gguf", root_dir=checkpoint_dir, recursive=True)
         )
         for f in checkpoints:
-            prefix = str(Path(f).parent)
-            if prefix == ".":  # .parent returns "." when the file is at the root of folder
-                prefix = ""
-            prefix = prefix.replace("/", ".")  # diffusers prefix layer naming convention
-            
-            checkpoint_dir_with_prefixes.append((prefix, checkpoint_dir / f))
+            subfolder = str(Path(f).parent)            
+            checkpoint_dir_with_subfolders.append((subfolder, checkpoint_dir / f))
 
-        return checkpoint_dir_with_prefixes
+        return checkpoint_dir_with_subfolders
 
 
     @staticmethod
@@ -248,6 +244,26 @@ class ModelPolice:
         return True
 
 
+    @staticmethod 
+    def compute_recall(dict_keys, all_keys):
+        recall = 0
+        for key in dict_keys:
+            if key in all_keys:
+                recall += 1
+        return recall / max(len(dict_keys), 1)
+
+
+    @staticmethod
+    def get_prefix_from_subfolder(subfolder):
+        prefix = str(subfolder)
+        if prefix == ".":  # .parent returns "." when the file is at the root of folder
+            prefix = ""
+        prefix = prefix.replace("/", ".")  # diffusers subfolder layer naming convention
+        if prefix:
+            prefix = f"{prefix}."  # adding a point
+        return prefix
+
+
     def inspect(self, state_dict_or_checkpoint_path):
         # the inspect method does not raise error
         full_models = None 
@@ -257,7 +273,7 @@ class ModelPolice:
         try:
             if isinstance(state_dict_or_checkpoint_path, dict):  # input is a state dict
                 checkpoint_list = [{
-                    "prefix": "",
+                    "subfolder": "",
                     "files": [],
                     "state_dict": state_dict_or_checkpoint_path,
                 }]
@@ -265,14 +281,14 @@ class ModelPolice:
             elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):                
 
                 if Path(state_dict_or_checkpoint_path).is_dir():
-                    checkpoint_list_with_prefixes = self.get_checkpoint_list_with_prefixes(state_dict_or_checkpoint_path)
+                    checkpoint_list_with_subfolders = self.get_checkpoint_list_with_subfolders(state_dict_or_checkpoint_path)
 
                 else:
-                    checkpoint_list_with_prefixes = [("", state_dict_or_checkpoint_path)]
+                    checkpoint_list_with_subfolders = [(".", state_dict_or_checkpoint_path)]
 
                 # read state dict and merge in the form "-0000X-of-0000Y"
                 checkpoint_list = {}
-                for prefix, checkpoint_file in checkpoint_list_with_prefixes:
+                for subfolder, checkpoint_file in checkpoint_list_with_subfolders:
                     key = re.sub('-\d{5}-of-\d{5}', '', str(checkpoint_file)) # remove "-0000X-of-0000Y" in order to merge
                     state_dict = self.read_state_dict_from_checkpoint(checkpoint_file)
                     if key in checkpoint_list: 
@@ -280,7 +296,7 @@ class ModelPolice:
                         checkpoint_list[key]["state_dict"] |= state_dict
                     else:
                         checkpoint_list[key] = {
-                            "prefix": prefix,
+                            "subfolder": subfolder,
                             "files": [checkpoint_file],
                             "state_dict": state_dict,
                         }
@@ -340,9 +356,7 @@ class ModelPolice:
             # we consider there is a full or part model if all of his keys are present
             all_keys = set()
             for checkpoint in checkpoint_list:
-                prefix = checkpoint["prefix"]
-                if prefix:
-                    prefix = f"{prefix}."  # adding a point
+                prefix = self.get_prefix_from_subfolder(checkpoint["subfolder"])
                 for key in checkpoint["layer_names_with_shapes"]:
                     all_keys.add(f"{prefix}{key}")
 

@@ -30,13 +30,7 @@ def main():
     # load model
     pipe = AutoPipelineForText2Image.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
 
-    if args.model and args.framework:
-        full_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_full_{clean(args.framework)}.csv"
-        if full_model_dict.exists() and not force and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
-            exit()
-        full_model_file = open(full_model_dict, "w")
-
-    # print layer names
+    full_model_keys = []
     for component_name, component in list(pipe.components.items()):
         if component is None or not hasattr(component, "named_parameters"):
             continue
@@ -57,7 +51,7 @@ def main():
 
                         key_with_prefix = f"{component_name}.{module_name + '.' if module_name else ''}{weight_suffix},{shape_to_list}"
                         if args.model and args.framework:
-                            full_model_file.write(key_with_prefix + "\n")
+                            full_model_keys.append(key_with_prefix)
                         else:
                             print(key_with_prefix) 
 
@@ -65,7 +59,7 @@ def main():
                 component_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_{clean(component_name)}_{clean(args.framework)}.csv".lower()
                 if not component_model_dict.exists() or force or input(f"File {component_model_dict} already exists, override it ? [y/N]") == "y":
                     with open(component_model_dict, "w") as f:
-                        for k in component_keys:
+                        for k in sorted(list(set(component_keys))):
                             f.write(k + "\n")
                     print(f"{component_name} keys with shapes dumped to {component_model_dict}")   
         
@@ -74,7 +68,13 @@ def main():
             raise e
 
     if args.model and args.framework:
-        full_model_file.close()
+        full_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_full_{clean(args.framework)}.csv"
+        if full_model_dict.exists() and not force and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
+            exit()
+        with open(full_model_dict, "w") as full_model_file:
+            for key in sorted(list(set(full_model_keys))):
+                full_model_file.write(key + "\n")
+
         print(f"Full model keys with shapes dumped to {full_model_dict}")
 
 

@@ -8,7 +8,7 @@
 
 The model police inspector takes as input either a model `state_dict`, a checkpoint path, or a folder path containing full models such as Flux.1 Dev.
 
-The model police inspector requires a list of dictionaries in the folder `model_dictionaries` in the following form: `(model)_(type)_(framework)(_*).csv` where `model` is a model class identifier ('sdxl', 'flux', 'sd1-5', ...), `type` is checkpoint type ('full', 'lora', or components such as 'transformer', 'unet', 'vae', 'text-encoder', 'text-encoder-2', 'safety-checker') and `framework` is the model code format ('diffusers', 'bfl', 'kohya', ...). Anything after in the model dictionary name is ignored. The scripts `./checkpoinit dump model.safetensors` and `./dump_from_diffusers repo_id` enable to easily dump new model dictionary either from a checkpoint file or folder, or for any diffusers' library pipeline. 
+The model police inspector requires a list of dictionaries in the folder `model_dictionaries` in the following form: `(model)_(type)_(framework)(_*).csv` where `model` is a model class identifier ('sdxl', 'flux', 'sd1-5', ...), `type` is checkpoint type ('full', 'lora', or components such as 'transformer', 'unet', 'vae', 'text-encoder', 'text-encoder-2', 'safety-checker') and `framework` is the model code format ('diffusers', 'bfl', 'kohya', ...). Anything after in the model dictionary name is ignored. The scripts `./checkpoint keys model.safetensors` and `./dump_from_diffusers repo_id` enable to easily dump new model dictionary either from a checkpoint file or folder, or for any diffusers' library pipeline. 
 
 It's possible to use it as a command line:
 
@@ -45,7 +45,7 @@ From a checkpoint:
 checkpoint keys model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors 
 
 # or save the dictionary in the lib
-checkpoint dump model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors flux kohya 
+checkpoint keys model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors > flux_lora_kohya.csv 
 ```
 
 For a dump from a diffusers pipeline, you can use the script `dump_from_diffusers` which takes as argument the repo_id, as well as full model name and framework name. It will create multiple model dictionaries and dump them in the `model_dictionaries` folder. Type will be automatically added to model dictionary names. If model and framework not given, it will dump the keys to the standard output.
