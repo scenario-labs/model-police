@@ -1,5 +1,4 @@
 text_model.embeddings.position_embedding.weight,77,768
-text_model.embeddings.position_ids,1,77
 text_model.embeddings.token_embedding.weight,49408,768
 text_model.encoder.layers.0.layer_norm1.bias,768
 text_model.encoder.layers.0.layer_norm1.weight,768

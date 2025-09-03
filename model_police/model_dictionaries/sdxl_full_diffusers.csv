@@ -1,5 +1,4 @@
 text_encoder.text_model.embeddings.position_embedding.weight,77,768
-text_encoder.text_model.embeddings.position_ids,1,77
 text_encoder.text_model.embeddings.token_embedding.weight,49408,768
 text_encoder.text_model.encoder.layers.0.layer_norm1.bias,768
 text_encoder.text_model.encoder.layers.0.layer_norm1.weight,768
@@ -196,7 +195,6 @@ text_encoder.text_model.encoder.layers.9.self_attn.v_proj.weight,768,768
 text_encoder.text_model.final_layer_norm.bias,768
 text_encoder.text_model.final_layer_norm.weight,768
 text_encoder_2.text_model.embeddings.position_embedding.weight,77,1280
-text_encoder_2.text_model.embeddings.position_ids,1,77
 text_encoder_2.text_model.embeddings.token_embedding.weight,49408,1280
 text_encoder_2.text_model.encoder.layers.0.layer_norm1.bias,1280
 text_encoder_2.text_model.encoder.layers.0.layer_norm1.weight,1280

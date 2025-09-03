@@ -147,7 +147,7 @@ class ModelPolice:
 
 
     def get_layer_names_with_shapes_from_lora(self, state_dict_or_state_dict_shapes):
-        in_features = {}  # dict : key => in_featues
+        in_features = {}  # dict : key => in_features
         out_features = {}  # dict : key => out_features
 
         for k, t in state_dict_or_state_dict_shapes.items():
@@ -158,18 +158,23 @@ class ModelPolice:
             layer_key, lora_suffix = self.split_key_and_lora_suffix(k)
 
             if lora_suffix in self._lora_down_suffixes:
-                _rank, _in_features = t
-                in_features[layer_key] = _in_features
+                _rank = t.pop(0)
+                in_features[layer_key] = t
 
             if lora_suffix in self._lora_up_suffixes:
-                _out_features, _rank = t
-                out_features[layer_key] = _out_features
+                _rank = t.pop(1)
+                out_features[layer_key] = t
 
         assert len(out_features) == len(in_features), "Number of up and down keys do not match in the lora"
 
-        final_keys = sorted([f"{k},{in_features[k]},{out_features[k]}" for k in in_features])
-        
-        return final_keys
+        final_keys = []
+        for k in in_features:
+            if len(in_features) == 1:
+                final_keys.append(f"{k},{in_features[k][0]},{out_features[k][0]}")
+            elif len(in_features) == 3:
+                final_keys.append(f"{k},{out_features[k][0]},{in_features[k][0]},{in_features[k][1]*out_features[k][1]},{in_features[k][2]*out_features[k][2]}")
+
+        return sorted(final_keys)
 
 
     @staticmethod
@@ -317,6 +322,7 @@ class ModelPolice:
 
                 # layer_names_with_shapes creation
                 if is_lora:
+                    print(checkpoint["files"])
                     layer_names_with_shapes = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
                 else:
                     layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
