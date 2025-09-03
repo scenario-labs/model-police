@@ -242,8 +242,6 @@ vae.decoder.conv_norm_out.weight,128
 vae.decoder.conv_norm_out.bias,128
 vae.decoder.conv_out.weight,3,128,3,3
 vae.decoder.conv_out.bias,3
-text_encoder.text_model.embeddings.position_ids,1,77
-text_encoder.text_model.embeddings.position_ids,1,77
 text_encoder.text_model.embeddings.token_embedding.weight,49408,768
 text_encoder.text_model.embeddings.position_embedding.weight,77,768
 text_encoder.text_model.encoder.layers.0.self_attn.k_proj.weight,768,768

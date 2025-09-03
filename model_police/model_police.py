@@ -91,8 +91,6 @@ class ModelPolice:
             if prefix == ".":  # .parent returns "." when the file is at the root of folder
                 prefix = ""
             prefix = prefix.replace("/", ".")  # diffusers prefix layer naming convention
-            if prefix:
-                prefix = f"{prefix}."  # adding a point
             
             checkpoint_dir_with_prefixes.append((prefix, checkpoint_dir / f))
 
@@ -287,8 +285,8 @@ class ModelPolice:
                             "state_dict": state_dict,
                         }
 
-                checkpoint_list = checkpoint_list.values() # we don't need keys after deduplication
-             
+                checkpoint_list = list(checkpoint_list.values()) # we don't need keys after deduplication
+
             else:
                 raise ValueError(
                     f"Unknown type for checkpoint input: {type(state_dict_or_checkpoint_path)}"
@@ -342,8 +340,12 @@ class ModelPolice:
             # we consider there is a full or part model if all of his keys are present
             all_keys = set()
             for checkpoint in checkpoint_list:
-                all_keys.update(checkpoint["layer_names_with_shapes"])
-            
+                prefix = checkpoint["prefix"]
+                if prefix:
+                    prefix = f"{prefix}."  # adding a point
+                for key in checkpoint["layer_names_with_shapes"]:
+                    all_keys.add(f"{prefix}{key}")
+
             full_models = []
             for dict_name, dict_keys in self._model_dictionaries.items():
                 if "full" in dict_name and self.is_fully_covered(dict_keys, all_keys):
