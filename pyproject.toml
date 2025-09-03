@@ -15,8 +15,8 @@ where = ["."]
 
 [project.scripts]
 # Command line interface entrypoint scripts
-dump_layer_names_with_shapes_from_checkpoint = "model_police.dump_layer_names_with_shapes_from_checkpoint:main"
-dump_layer_names_with_shapes_from_diffusers_pipeline = "model_police.dump_layer_names_with_shapes_from_diffusers_pipeline:main"
+checkpoint = "model_police.checkpoint:main"
+dump_from_diffusers = "model_police.dump_from_diffusers:main"
 
 [tool.setuptools.package-data]
 "model_police" = [

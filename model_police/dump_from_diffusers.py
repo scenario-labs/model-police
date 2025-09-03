@@ -11,6 +11,14 @@ here = Path(__file__).parent
 
 force = True
 
+def clean(name):
+    name = name.replace(".", "-")
+    name = name.replace("_", "-")
+    name = name.replace(" ", "-")
+    name = name.lower()
+    return name
+
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -23,7 +31,7 @@ def main():
     pipe = AutoPipelineForText2Image.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
 
     if args.model and args.framework:
-        full_model_dict = here / "model_dictionaries" / f"{args.model}_full_{args.framework}.csv".lower()
+        full_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_full_{clean(args.framework)}.csv"
         if full_model_dict.exists() and not force and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
             exit()
         full_model_file = open(full_model_dict, "w")
@@ -54,7 +62,7 @@ def main():
                             print(key_with_prefix) 
 
             if component_keys and args.model and args.framework:
-                component_model_dict = here / "model_dictionaries" / f"{args.model}_{component_name}_{args.framework}.csv".lower()
+                component_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_{clean(component_name)}_{clean(args.framework)}.csv".lower()
                 if not component_model_dict.exists() or force or input(f"File {component_model_dict} already exists, override it ? [y/N]") == "y":
                     with open(component_model_dict, "w") as f:
                         for k in component_keys:
