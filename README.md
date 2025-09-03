@@ -96,4 +96,5 @@ if (not is_lora and "diffusers" in model_class):
 ### limitations
 
 - the lib only reads gguf and safetensors. In particular, it does not read binary and onnx files yet.
-- when multiple version of the same model in different precision are present in the folder, the lib overrides the key if already present. Should not be a problem, except if there is a mix of different models or framework, the lib creates a dictionary with all keys together.
+- full model detection requires to give the correct root as input to the inspector, since it will prefix keys with subfolder names
+- if multiple full models are present in a folder, there is no mean to separate these full models. Only loras and part models are separable.
