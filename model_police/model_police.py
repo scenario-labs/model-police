@@ -268,7 +268,7 @@ class ModelPolice:
                     checkpoint_list_with_prefixes = self.get_checkpoint_list_with_prefixes(state_dict_or_checkpoint_path)
 
                 else:
-                    checkpoint_list_with_prefixes = [("", checkpoint_or_folder_path)]
+                    checkpoint_list_with_prefixes = [("", state_dict_or_checkpoint_path)]
 
                 # read state dict and merge in the form "-0000X-of-0000Y"
                 checkpoint_list = {}
