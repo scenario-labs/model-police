@@ -66,7 +66,7 @@ dump_from_diffusers black-forest-labs/FLUX.1-dev flux diffusers
 - `lora_down_suffixes.txt`
 - `lora_ignore_suffixes.txt`
 
-Model dictionaries are in `model_dictionaries` folder. Naming convention is `modelclass_framework(*).csv`. For example: `flux_diffusers.csv`, `flux_kohya.csv`, or `flux_kohya_1.csv`
+Model dictionaries are in `model_dictionaries` folder. Naming convention is `model_type_framework(*).csv`. For example: `flux_full_diffusers.csv`, `flux_lora_kohya.csv`, or `flux_lora_kohya_1.csv`
 
 
 ### loras
