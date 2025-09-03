@@ -30,7 +30,7 @@ full_models, checkpoint_list, error = model_police_officer.inspect(state_dict_or
 
 `full_models` is a list containing the list of full model classes that have been detected (`model_dictionaries` that have `full` type in their name). That means that all of the required keys have been matched.
 
-In the checkpoint list, you'll find all checkpoints with their `layer_names_with_shapes` and `is_lora` attribute. If the checkpoint is a lora, you will find class model compatibility list. If the checkpoint is not a lora, you'll find the list of part models (['sdxl_vae*', 'sd1-5_vae*'] or ['sdxl_text-encoder', 'sd1-5_text-encoder'] for example since they are the same)
+In the checkpoint list, you'll find all checkpoints with their `layer_names_with_shapes` and `is_lora` attributes. If the checkpoint is a lora, you will find class model compatibility list. If the checkpoint is not a lora, you'll find the list of part models (['sdxl_vae*', 'sd1-5_vae*'] or ['sdxl_text-encoder', 'sd1-5_text-encoder'] for example since they are the same)
 
 
 The `inspect()` method is safe and in case of production failure to classify a model, the list of layer names with shapes can be found in `layer_names_with_shapes` in order to add it to a new model dictionary for further classifications.
