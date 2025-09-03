@@ -4,7 +4,7 @@
     <br>
 </p>
 
-`model_police` library aims to help developers to deal with model and framework jungle. It classifies model checkpoints against model dictionaries, in order to check their class compatibility for safe loading. With following rule in mind: better add more model dictionaries than add more rules to a code base that mixes with data.
+`model_police` library aims to help developers to deal with model and framework jungle. It classifies model checkpoints against model dictionaries, in order to check their class compatibility for safe loading. With following rule in mind: better add more model dictionaries than add more rules to a code base that mixes with data and ends as a manually coded random forest.
 
 The model police inspector takes as input either a model `state_dict`, a checkpoint path, or a folder path containing full models. 
 
