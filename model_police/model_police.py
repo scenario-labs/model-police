@@ -273,7 +273,7 @@ class ModelPolice:
                     checkpoint_list_with_prefixes = [("", checkpoint_or_folder_path)]
 
                 # read state dict and merge in the form "-0000X-of-0000Y"
-                checkpoint_list = []
+                checkpoint_list = {}
                 for prefix, checkpoint_file in checkpoint_list_with_prefixes:
                     key = re.sub('-\d{5}-of-\d{5}', '', str(checkpoint_file)) # remove "-0000X-of-0000Y" in order to merge
                     state_dict = self.read_state_dict_from_checkpoint(checkpoint_file)
@@ -287,7 +287,7 @@ class ModelPolice:
                             "state_dict": state_dict,
                         }
 
-                    checkpoint_list = checkpoint_list.values() # we don't need keys after deduplication
+                checkpoint_list = checkpoint_list.values() # we don't need keys after deduplication
              
             else:
                 raise ValueError(
