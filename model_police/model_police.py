@@ -246,7 +246,7 @@ class ModelPolice:
     def is_fully_covered(dict_keys, all_keys):
         for key in dict_keys:
             if key not in all_keys:
-                teturn False
+                return False
         return True
 
 
