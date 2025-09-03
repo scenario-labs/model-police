@@ -15,6 +15,7 @@ here = Path(__file__).parent
 
 
 class ModelPolice:
+    _dictname_num_keys: dict[str, int] = {} 
     _layername_and_shape_to_dictname: dict[str, str] = {}
     _lora_down_suffixes: list[str] = []
     _lora_up_suffixes: list[str] = []
@@ -36,8 +37,7 @@ class ModelPolice:
 
         for dict_filepath in (here / "model_dictionaries").iterdir():
             dict_name = dict_filepath.name.removesuffix(".csv")
-            ## dictname is in the form "modelclass_framework"
-            # model_class, framework, *_ = dict_name.split("_")
+            self._dictname_num_keys[dict_name] = 0
 
             with open(dict_filepath, "r") as f:                
                 for line in f:
@@ -45,8 +45,7 @@ class ModelPolice:
                     if line not in self._layername_and_shape_to_dictname:
                         self._layername_and_shape_to_dictname[line] = []
                     self._layername_and_shape_to_dictname[line].append(dict_name)
-                    ## line is in the form "key,in_features,out_features"
-                    # layer_name, in_features, out_features = line.split(",")
+                    self._dictname_num_keys[dict_name] += 1
 
 
     @staticmethod
@@ -200,8 +199,6 @@ class ModelPolice:
         # vote for dictname
         dictname_votes = {}
         for k in input_keys:
-            # if not is_lora: # in case number of layers change in config
-            #     k = self.replace_key_numbers_with_zero(k)
             if k in _layername_and_shape_to_dictname:
                 for d in _layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
@@ -209,22 +206,17 @@ class ModelPolice:
                     else:
                         dictname_votes[d] += 1
 
+        # add the recall
+        for d in list(dictname_votes.keys()):
+            dictname_votes[d] = (dictname_votes[d], dictname_votes[d] / self._dictname_num_keys[d])
+
         model_classes = {}
-        for matched_dictname in sorted(dictname_votes, key=dictname_votes.get, reverse=True):
+        for matched_dictname, (num_matched_keys, model_recall) in sorted(dictname_votes.items(), key=lambda x:x[1], reverse=True):
             # find keys 
             matched_keys = []
             remaining_keys = []
             for k in input_keys:
-                _k = k
-                # if not is_lora: # in case number of layers change in config
-                #     _k = self.replace_key_numbers_with_zero(k)
-                # else:
-                #     _k = k
-
-                # if _k  not in _layername_and_shape_to_dictname:
-                #     print(k)
-
-                if _k in _layername_and_shape_to_dictname and matched_dictname in _layername_and_shape_to_dictname[_k]:
+                if k in _layername_and_shape_to_dictname and matched_dictname in _layername_and_shape_to_dictname[k]:
                     matched_keys.append(k.split(",")[0])
                 else:
                     remaining_keys.append(k)
@@ -238,8 +230,7 @@ class ModelPolice:
 
         if len(input_keys) > 0:
             model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
-        # for k in input_keys:
-        #     print(k)
+
         return model_classes
 
 
