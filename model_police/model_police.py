@@ -322,7 +322,6 @@ class ModelPolice:
 
                 # layer_names_with_shapes creation
                 if is_lora:
-                    print(checkpoint["files"])
                     layer_names_with_shapes = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
                 else:
                     layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
