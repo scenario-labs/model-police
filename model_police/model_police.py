@@ -166,12 +166,12 @@ class ModelPolice:
                 out_features[layer_key] = t
 
         assert len(out_features) == len(in_features), "Number of up and down keys do not match in the lora"
-
+        
         final_keys = []
         for k in in_features:
-            if len(in_features) == 1:
+            if len(in_features[k]) == 1:
                 final_keys.append(f"{k},{in_features[k][0]},{out_features[k][0]}")
-            elif len(in_features) == 3:
+            elif len(in_features[k]) == 3:
                 final_keys.append(f"{k},{out_features[k][0]},{in_features[k][0]},{in_features[k][1]*out_features[k][1]},{in_features[k][2]*out_features[k][2]}")
 
         return sorted(final_keys)
@@ -374,7 +374,7 @@ class ModelPolice:
 
         except Exception as e:
             error = str(e)
-            print(traceback.format_exc())
+            traceback.print_exc()
             return full_models, checkpoint_list, error
 
     @staticmethod

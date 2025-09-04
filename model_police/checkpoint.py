@@ -30,8 +30,7 @@ def main():
     full_models, checkpoint_list, error = model_police_officer.inspect(args.checkpoint)
     
     if error is not None:
-        print(error)
-        exit()
+        raise Exception(error)
  
     if args.command == "keys":
         subfolders = set(str(c["subfolder"]) for c in checkpoint_list)
