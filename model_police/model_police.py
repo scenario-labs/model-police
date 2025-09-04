@@ -329,7 +329,8 @@ class ModelPolice:
                 checkpoint.update({
                     "is_lora": is_lora,
                     "layer_names_with_shapes": layer_names_with_shapes,
-                    "model_components": []
+                    "model_components": [],
+                    "model_classes": [],
                 })
 
                 if is_lora:
