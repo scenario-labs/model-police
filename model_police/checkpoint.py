@@ -57,7 +57,7 @@ def main():
                 print(f"     - {f}")
             
             print(f"     is_lora: {checkpoint['is_lora']}")
-            print("     Model parts:", checkpoint["model_parts"])
+            print("     Model components:", checkpoint["model_components"])
             
             # if model_classes:
             #     print("Classes:")

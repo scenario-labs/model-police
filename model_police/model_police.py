@@ -329,7 +329,7 @@ class ModelPolice:
                 checkpoint.update({
                     "is_lora": is_lora,
                     "layer_names_with_shapes": layer_names_with_shapes,
-                    "model_parts": []
+                    "model_components": []
                 })
 
                 if is_lora:
@@ -355,7 +355,7 @@ class ModelPolice:
                     # find model parts
                     for dict_name, dict_keys in self._model_dictionaries.items():
                         if self.is_fully_covered(dict_keys, layer_names_with_shapes):
-                            checkpoint["model_parts"].append(dict_name)
+                            checkpoint["model_components"].append(dict_name)
 
             # full and part model detection:
             # we consider there is a full or part model if all of his keys are present
