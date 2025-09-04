@@ -215,7 +215,7 @@ class ModelPolice:
 
         # add the recall
         for d in list(dictname_votes.keys()):
-            dictname_votes[d] = (dictname_votes[d], dictname_votes[d] / self._dictname_num_keys[d])
+            dictname_votes[d] = (dictname_votes[d], dictname_votes[d] / len(self._model_dictionaries[d]))
 
         model_classes = {}
         for matched_dictname, (num_matched_keys, model_recall) in sorted(dictname_votes.items(), key=lambda x:x[1], reverse=True):
@@ -334,22 +334,20 @@ class ModelPolice:
 
                 if is_lora:
                     # lora classification
-                # model_classes = self.classify_keys(layer_names_with_shapes, is_lora=is_lora)
+                    model_classes = self.classify_keys(layer_names_with_shapes, is_lora=is_lora)
                 
+                    for model_class in list(model_classes.keys()):     
+                        matched_keys = model_classes[model_class]
 
-                # for model_class in list(model_classes.keys()):     
+                        # extract state_dict that match
+                        matched_state_dict = {
+                            k: state_dict.pop(k) for k in list(state_dict.keys()) 
+                            if self.remove_lora_suffix(k) in matched_keys
+                        }
+                        assert len(matched_state_dict) > 0
+                        model_classes[model_class] = matched_state_dict
 
-                #     matched_keys = model_classes[model_class]
-
-                #     # extract state_dict that match
-                #     matched_state_dict = {
-                #         k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                #         if self.remove_lora_suffix(k) in matched_keys
-                #     }
-                #     assert len(matched_state_dict) > 0
-                #     model_classes[model_class] = matched_state_dict
-
-                    pass
+                    checkpoint["model_classes"] = model_classes
 
                 else:
                     # find model parts

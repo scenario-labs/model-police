@@ -57,16 +57,16 @@ def main():
                 print(f"     - {f}")
             
             print(f"     is_lora: {checkpoint['is_lora']}")
-            print("     Model components:", checkpoint["model_components"])
-            
-            # if model_classes:
-            #     print("Classes:")
-            #     for model_class in model_classes:
-            #         print(f"{model_class}({len(model_classes[model_class])})")
-            #         if len(model_classes[model_class]) < 500:
-            #             for k in list(model_classes[model_class].keys())[:10]:
-            #                 print("    ", k)
-
+            if checkpoint["is_lora"]:
+                print("     Lora compatibilities")
+                for model_class in checkpoint["model_classes"]:
+                    print(f"     - {model_class}({len(checkpoint['model_classes'][model_class])})")
+                    if len(checkpoint["model_classes"][model_class]) < 500:
+                        for k in list(checkpoint["model_classes"][model_class].keys())[:10]:
+                            print("            ", k)
+            else:
+                print("     Model components:", checkpoint["model_components"])
+            print()
     else:
         print("Unknown command {args.command}")
 
