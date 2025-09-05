@@ -63,7 +63,7 @@ def main():
                     print(f"     - {model_class}({len(checkpoint['model_classes'][model_class])})")
                     if model_class == "unknown":
                         print(f"       Missing keys:")
-                        for k in list(checkpoint["model_classes"][model_class].keys())[:10]:
+                        for k in list(checkpoint["model_classes"][model_class].keys())[:10] + ["..."]:
                             print("            ", k)
             else:
                 print("     Model components:", checkpoint["model_components"])
