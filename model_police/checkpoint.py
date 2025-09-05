@@ -2,6 +2,7 @@
 """ Extract layer names and classify checkpoints """
 
 import argparse
+import sys
 import torch
 
 from pathlib import Path
@@ -32,6 +33,9 @@ def main():
     if error is not None:
         raise Exception(error)
  
+    sys.stdout.flush()
+    sys.stderr.flush()
+    print("\n\n\n")
     if args.command == "keys":
         subfolders = set(str(c["subfolder"]) for c in checkpoint_list)
         add_prefix = len(subfolders) > 1

@@ -40,9 +40,9 @@ def main():
 
             for module_name, module in component.named_modules():
                 for weight_suffix in [
-                    "weight", "bias", "concept_embeds", "position_ids", "concept_embeds", "concept_embeds_weights",
+                    "weight", "bias", "concept_embeds", "concept_embeds", "concept_embeds_weights",
                     "special_care_embeds", "special_care_embeds_weights", "class_embedding", "position_ids"
-                ]:
+                ]: # "position_ids",
                     if (w:= getattr(module, weight_suffix, None)) is not None:
                         shape_to_list = ','.join(map(str, list(w.shape)))
 

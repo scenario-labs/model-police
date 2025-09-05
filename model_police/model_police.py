@@ -9,7 +9,7 @@ import traceback
 from pathlib import Path
 from gguf.gguf_reader import GGUFReader
 from huggingface_hub import hf_hub_url
-from huggingface_hub import list_repo_files
+from huggingface_hub import snapshot_download
 from safetensors import safe_open
 
 logger = logging.getLogger(__name__)
@@ -325,14 +325,7 @@ class ModelPolice:
             # Assume the url is a Huggingface path
             # Ex: "alvdansen/frosting_lane_flux"
             # In that case, we need to list the files and select the first *.safetensors file
-            all_files = list_repo_files(url)
-
-            for file in all_files:
-                if file.endswith(".safetensors") or file.endswith(".gguf"):
-                    logger.info(f"Downloading: {file}")
-                    full_url = hf_hub_url(url, file)
-                    (tmpdirname / str(Path(file).parent)).mkdir(exist_ok=True)
-                    self.download(full_url, tmpdirname / file)
+            snapshot_download(repo_id=url, allow_patterns=["*.safetensors", "*.gguf"], local_dir=tmpdirname)
             return tmpdirname
 
         if re.match(
