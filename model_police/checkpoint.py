@@ -61,7 +61,8 @@ def main():
                 print("     Lora compatibilities")
                 for model_class in checkpoint["model_classes"]:
                     print(f"     - {model_class}({len(checkpoint['model_classes'][model_class])})")
-                    if len(checkpoint["model_classes"][model_class]) < 500:
+                    if model_class == "unknown":
+                        print(f"       Missing keys:")
                         for k in list(checkpoint["model_classes"][model_class].keys())[:10]:
                             print("            ", k)
             else:
