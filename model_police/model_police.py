@@ -1,11 +1,15 @@
 import glob
 import logging
 import re
+import subprocess
+import tempfile
 import torch
 import traceback
 
 from pathlib import Path
 from gguf.gguf_reader import GGUFReader
+from huggingface_hub import hf_hub_url
+from huggingface_hub import list_repo_files
 from safetensors import safe_open
 
 logger = logging.getLogger(__name__)
@@ -269,6 +273,86 @@ class ModelPolice:
         return prefix
 
 
+    @staticmethod
+    def _verify_pget_available() -> None:
+        """
+        Verify that `pget` is available in the environment.
+        """
+        try:
+            subprocess.check_output(["pget", "version"])
+        except subprocess.CalledProcessError as e:
+            logger.error("pget is not available in the environment")
+            raise e
+
+
+    def download(self, url, dest, extract=False) -> None:
+        self._verify_pget_available()
+        
+        logger.info(f"Downloading weights with pget: {url}")
+        logger.info(f" to: {dest}")
+
+        # option `-f` or `--force` is not necessary as we handle file existence
+        call_args = (
+            ["pget", "--pid-file", "pget.pid", "-x", url, dest]
+            if extract
+            else ["pget", "--pid-file", "pget.pid", url, dest]
+        )
+        output = subprocess.check_output(call_args, close_fds=True)  # noqa: S603
+        logger.debug(output)
+        return dest
+        
+
+    def parse_and_download(self, url) -> str:
+        tmpdirname = Path(tempfile.mkdtemp())
+        
+        if re.match(r"^[\w-]+/[\w\.-]+:.*\.safetensors$", url):
+            logger.info(
+                f"Weights definition from hugging face URL: {url}",
+            )
+            # Assume the URL is a Huggingface path with a file name
+            # Ex: "alvdansen/frosting_lane_flux:flux_dev_frostinglane_araminta_k.safetensors"
+            # Ex: "alvdansen/softserve_anime:flux_dev_softstyle_araminta_k.safetensors"
+            hf_repo = url.split(":")[0]
+            weight_name = url.split(":")[-1]
+            logger.info(f"Repo_id: {hf_repo}, weight_name: {weight_name}")
+            full_url = hf_hub_url(hf_repo, weight_name)
+            return self.download(full_url, tmpdirname / weight_name)
+
+        if re.match(r"^[\w-]+/[\w\d\.-]+$", url):
+            logger.info(
+                f"Definition from Huggingface username and slug: {url}",
+            )
+            # Assume the url is a Huggingface path
+            # Ex: "alvdansen/frosting_lane_flux"
+            # In that case, we need to list the files and select the first *.safetensors file
+            all_files = list_repo_files(url)
+
+            for file in all_files:
+                if file.endswith(".safetensors") or file.endswith(".gguf"):
+                    logger.info(f"Downloading: {file}")
+                    full_url = hf_hub_url(url, file)
+                    (tmpdirname / str(Path(file).parent)).mkdir(exist_ok=True)
+                    self.download(full_url, tmpdirname / file)
+            return tmpdirname
+
+        if re.match(
+            r"^https?://civitai.com/api/download/models/\d+\?type=Model&format=SafeTensor",
+            url,
+        ):
+            logger.info(
+                f"Weights definition from Civitai: {url}",
+            )
+            return self.download(url, tmpdirname / "weights.safetensors")
+
+        # Remove the query parameters
+        base_url = url.split("?")[0]
+        if base_url.endswith(".safetensors"):
+            logger.info(f"Weights definition from SafeTensor: {url}")
+            return self.download(url, tmpdirname / "weights.safetensors")
+       
+        raise ValueError(f"Unsupported URL {url}")
+
+
     def inspect(self, state_dict_or_checkpoint_path):
         # the inspect method does not raise error
         full_models = None 
@@ -283,7 +367,11 @@ class ModelPolice:
                     "state_dict": state_dict_or_checkpoint_path,
                 }]
 
-            elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):                
+            elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):
+
+                if not Path(state_dict_or_checkpoint_path).exists():
+                    print(f"{state_dict_or_checkpoint_path} not found locally, trying to download")
+                    state_dict_or_checkpoint_path = self.parse_and_download(state_dict_or_checkpoint_path)
 
                 if Path(state_dict_or_checkpoint_path).is_dir():
                     checkpoint_list_with_subfolders = self.get_checkpoint_list_with_subfolders(state_dict_or_checkpoint_path)
