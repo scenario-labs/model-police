@@ -1,0 +1,24 @@
+
+
+
+
+Found full models: []
+Found checkpoints:
+   - Files:
+     - /tmp/tmp59ub4dcb/flymy_realism.safetensors
+     is_lora: True
+     Lora compatibilities
+     - unknown(480)
+       Missing keys:
+             transformer.transformer_blocks.0.attn.to_k.lora.down.weight
+             transformer.transformer_blocks.0.attn.to_k.lora.up.weight
+             transformer.transformer_blocks.0.attn.to_out.0.lora.down.weight
+             transformer.transformer_blocks.0.attn.to_out.0.lora.up.weight
+             transformer.transformer_blocks.0.attn.to_q.lora.down.weight
+             transformer.transformer_blocks.0.attn.to_q.lora.up.weight
+             transformer.transformer_blocks.0.attn.to_v.lora.down.weight
+             transformer.transformer_blocks.0.attn.to_v.lora.up.weight
+             transformer.transformer_blocks.1.attn.to_k.lora.down.weight
+             transformer.transformer_blocks.1.attn.to_k.lora.up.weight
+             ...
+

@@ -1,5 +1,7 @@
 import glob
+import hashlib
 import logging
+import os
 import re
 import subprocess
 import tempfile
@@ -100,7 +102,7 @@ class ModelPolice:
     @staticmethod
     def get_state_dict_shapes(state_dict):
         return {
-            k: list(v.shape) 
+            k: (list(v.shape) if isinstance(v, torch.Tensor) else [""])
             for k, v in state_dict.items()
         }
 
@@ -281,47 +283,55 @@ class ModelPolice:
         try:
             subprocess.check_output(["pget", "version"])
         except subprocess.CalledProcessError as e:
-            logger.error("pget is not available in the environment")
+            logger.error("pget not found in the environment: please install it https://github.com/replicate/pget")
             raise e
+
+
+    @staticmethod
+    def hash_url(url: str) -> str:
+        """
+        Generate a unique hash from the url param.
+
+        Args:
+            url (str): the url to hash
+        """
+        return hashlib.sha256(url.encode()).hexdigest()[:16]  # Use the first 16 characters of the hash
 
 
     def download(self, url, dest, extract=False) -> None:
         self._verify_pget_available()
         
-        logger.info(f"Downloading weights with pget: {url}")
-        logger.info(f" to: {dest}")
+        if not Path(dest).exits():
+            logger.info(f"Downloading weights with pget: {url}")
+            logger.info(f" to: {dest}")
 
-        # option `-f` or `--force` is not necessary as we handle file existence
-        call_args = (
-            ["pget", "--pid-file", "pget.pid", "-x", url, dest]
-            if extract
-            else ["pget", "--pid-file", "pget.pid", url, dest]
-        )
-        output = subprocess.check_output(call_args, close_fds=True)  # noqa: S603
-        logger.debug(output)
+            # option `-f` or `--force` is not necessary as we handle file existence
+            call_args = (
+                ["pget", "--pid-file", "pget.pid", "-x", url, dest]
+                if extract
+                else ["pget", "--pid-file", "pget.pid", url, dest]
+            )
+            output = subprocess.check_output(call_args, close_fds=True)  # noqa: S603
+            logger.debug(output)
         return dest
         
 
     def parse_and_download(self, url) -> str:
-        tmpdirname = Path(tempfile.mkdtemp())
+        cache_dir = Path(os.getenv("MODEL_POLICE_CACHE", Path.home() / ".MODEL_POLICE_CACHE"))
+        tmpdirname = cache_dir / self.hash_url(url)
+        tmpdirname.mkdir(exist_ok=True, parents=True)
         
-        if re.match(r"^[\w-]+/[\w\.-]+:.*\.safetensors$", url):
-            logger.info(
-                f"Weights definition from hugging face URL: {url}",
-            )
+        if (m := re.match(r"^[\w-]+/[\w\.-]+:.*\.safetensors$", url)):
             # Assume the URL is a Huggingface path with a file name
             # Ex: "alvdansen/frosting_lane_flux:flux_dev_frostinglane_araminta_k.safetensors"
             # Ex: "alvdansen/softserve_anime:flux_dev_softstyle_araminta_k.safetensors"
-            hf_repo = url.split(":")[0]
-            weight_name = url.split(":")[-1]
-            logger.info(f"Repo_id: {hf_repo}, weight_name: {weight_name}")
+            hf_repo, weight_name = m.group(1, 2)
+            logger.info(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}")
             full_url = hf_hub_url(hf_repo, weight_name)
             return self.download(full_url, tmpdirname / weight_name)
 
         if re.match(r"^[\w-]+/[\w\d\.-]+$", url):
-            logger.info(
-                f"Definition from Huggingface username and slug: {url}",
-            )
+            logger.info(f"Weights from Huggingface repo id: {url}")
             # Assume the url is a Huggingface path
             # Ex: "alvdansen/frosting_lane_flux"
             # In that case, we need to list the files and select the first *.safetensors file
@@ -332,18 +342,16 @@ class ModelPolice:
             r"^https?://civitai.com/api/download/models/\d+\?type=Model&format=SafeTensor",
             url,
         ):
-            logger.info(
-                f"Weights definition from Civitai: {url}",
-            )
+            logger.info(f"Weights from Civitai: {url}")
             return self.download(url, tmpdirname / "weights.safetensors")
 
         # Remove the query parameters
         base_url = url.split("?")[0]
         if base_url.endswith(".safetensors"):
-            logger.info(f"Weights definition from SafeTensor: {url}")
+            logger.info(f"Weights from SafeTensor: {url}")
             return self.download(url, tmpdirname / "weights.safetensors")
        
-        raise ValueError(f"Unsupported URL {url}")
+        raise ValueError(f"Unsupported path or url: {url}")
 
 
     def inspect(self, state_dict_or_checkpoint_path):

@@ -17,7 +17,7 @@ It's possible to use it as a command line:
 checkpoint classify model.safetensors 
 checkpoint classify FLux.1-Dev/ 
 
-# remote files
+# remote files (weights are downloaded to ~/.MODEL_POLICE_CACHE if env var MODEL_POLICE_CACHE not set)
 checkpoint classify ByteDance/Hyper-SD
 checkpoint classify ByteDance/Hyper-SD:Hyper-SD15-12steps-CFG-lora.safetensors
 checkpoint classify "https://civitai.com/api/download/models/1264088?type=Model&format=SafeTensor&token=$CIVITAI_TOKEN" 
@@ -61,6 +61,7 @@ pip install -r requirements-diffusers.txt
 dump_from_diffusers stable-diffusion-v1-5/stable-diffusion-v1-5 sd1-5 diffusers
 dump_from_diffusers stabilityai/stable-diffusion-xl-base-1.0 sdxl diffusers
 dump_from_diffusers black-forest-labs/FLUX.1-dev flux diffusers
+dump_from_diffusers stabilityai/stable-diffusion-3-medium-diffusers sd3 diffusers
 ```
 
 
@@ -72,30 +73,6 @@ dump_from_diffusers black-forest-labs/FLUX.1-dev flux diffusers
 - `lora_ignore_suffixes.txt`
 
 Model dictionaries are in `model_dictionaries` folder. Naming convention is `model_type_framework(*).csv`. For example: `flux_full_diffusers.csv`, `flux_lora_kohya.csv`, or `flux_lora_kohya_1.csv`
-
-
-### loras
-
-<!-- if len(model_classes) > 1:
-    raise ValueError("It's a mixture of models")
-
-model_class = list(model_classes.keys())[0]
-state_dict = model_classes[model_class]
-
-if model_class == "unknown":
-    raise ValueError("Unknown model")
-else:
-    print(f"Model class: {model_class}")
-
-if model_class == "flux_kohya":
-    from conversions import kohya
-    state_dict = kohya.convert_sd_scripts_to_ai_toolkit(state_dict)
-
-
-if (not is_lora and "diffusers" in model_class):
-    components = model_police_officer.get_diffusers_components(layer_names_with_shapes)
-    print(components)  # ["vae", "safety_checker", "unet", "text_encoder"] -->
-
 
 
 ### limitations
