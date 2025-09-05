@@ -370,7 +370,7 @@ class ModelPolice:
             elif isinstance(state_dict_or_checkpoint_path, str) or isinstance(state_dict_or_checkpoint_path, Path):
 
                 if not Path(state_dict_or_checkpoint_path).exists():
-                    print(f"{state_dict_or_checkpoint_path} not found locally, trying to download")
+                    logger.info(f"{state_dict_or_checkpoint_path} not found locally, trying to download")
                     state_dict_or_checkpoint_path = self.parse_and_download(state_dict_or_checkpoint_path)
 
                 if Path(state_dict_or_checkpoint_path).is_dir():
