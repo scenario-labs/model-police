@@ -17,7 +17,7 @@ It's possible to use it as a command line:
 checkpoint classify model.safetensors 
 checkpoint classify FLux.1-Dev/ 
 
-# remote files (weights are downloaded to ~/.MODEL_POLICE_CACHE if env var MODEL_POLICE_CACHE not set)
+# remote files (weights are downloaded to ~/.cache/modelpolice if env var CACHE_MODEL_POLICE not set)
 checkpoint classify ByteDance/Hyper-SD
 checkpoint classify ByteDance/Hyper-SD:Hyper-SD15-12steps-CFG-lora.safetensors
 checkpoint classify "https://civitai.com/api/download/models/1264088?type=Model&format=SafeTensor&token=$CIVITAI_TOKEN" 

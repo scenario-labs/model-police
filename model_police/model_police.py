@@ -317,7 +317,7 @@ class ModelPolice:
         
 
     def parse_and_download(self, url) -> str:
-        cache_dir = Path(os.getenv("MODEL_POLICE_CACHE", Path.home() / ".MODEL_POLICE_CACHE"))
+        cache_dir = Path(os.getenv("CACHE_MODEL_POLICE", Path.home() / ".cache/modelpolice"))
         tmpdirname = cache_dir / self.hash_url(url)
         tmpdirname.mkdir(exist_ok=True, parents=True)
         
@@ -328,7 +328,7 @@ class ModelPolice:
             hf_repo, subfolder, weight_name = m.group(1, 2, 3)
             if subfolder:
                 subfolder = subfolder[:-1]
-            print(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}, folder: {subfolder}")
+            logger.info(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}, folder: {subfolder}")
             full_url = hf_hub_url(hf_repo, weight_name, subfolder=subfolder)
             return self.download(full_url, tmpdirname / weight_name)
 
