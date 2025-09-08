@@ -8,6 +8,8 @@ import tempfile
 import torch
 import traceback
 
+import numpy as np
+
 from pathlib import Path
 from gguf.gguf_reader import GGUFReader
 from huggingface_hub import hf_hub_url
@@ -101,10 +103,12 @@ class ModelPolice:
 
     @staticmethod
     def get_state_dict_shapes(state_dict):
-        return {
-            k: (list(v.shape) if isinstance(v, torch.Tensor) else [""])
-            for k, v in state_dict.items()
-        }
+        state_dict_shapes = {}
+        for k,v in state_dict.items():
+            if not (isinstance(v, torch.Tensor) or isinstance(v, np.memmap)):
+                raise ValueError(f"Unknown type for tensor {k} in safetensor: {type(v)}")
+            state_dict_shapes[k] = list(v.shape)
+        return state_dict_shapes
 
 
     def state_dict_shapes_to_list(self, state_dict_shapes):
