@@ -2,6 +2,7 @@
 """ Extract layer names and classify checkpoints """
 
 import argparse
+import shutil
 import sys 
 import torch
 
@@ -71,8 +72,7 @@ def main():
             else:
                 print("     Model components:", checkpoint["model_components"])
             print()
-    else:
-        print("Unknown command {args.command}")
+
 
 if __name__ == "__main__":
     main()
