@@ -2,3 +2,6 @@
 .diff_b
 .dora_scale
 .diff
+.key_norm.scale
+.query_norm.scale
+.bias
