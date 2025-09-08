@@ -4,7 +4,7 @@
 import argparse
 import torch
 
-from diffusers import AutoPipelineForText2Image
+from diffusers import DiffusionPipeline
 from pathlib import Path
 
 here = Path(__file__).parent
@@ -24,11 +24,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("repo_id")
     parser.add_argument("model", help="Flux, SDXL, SD15...", default="", nargs='?')
-    parser.add_argument("framework", help="Diffusers, Kohya, Unknown", default="", nargs='?')
     args = parser.parse_args()
 
     # load model
-    pipe = AutoPipelineForText2Image.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
+    pipe = DiffusionPipeline.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
 
     full_model_keys = []
     for component_name, component in list(pipe.components.items()):
@@ -53,13 +52,13 @@ def main():
                         component_keys.append(key_without_prefix)
 
                         key_with_prefix = f"{component_name}.{module_name + '.' if module_name else ''}{weight_suffix},{shape_to_list}"
-                        if args.model and args.framework:
+                        if args.model:
                             full_model_keys.append(key_with_prefix)
                         else:
                             print(key_with_prefix) 
 
-            if component_keys and args.model and args.framework:
-                component_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_{clean(component_name)}_{clean(args.framework)}.csv".lower()
+            if component_keys and args.model:
+                component_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_{clean(component_name)}_diffusers.csv".lower()
                 if not component_model_dict.exists() or force or input(f"File {component_model_dict} already exists, override it ? [y/N]") == "y":
                     with open(component_model_dict, "w") as f:
                         for k in sorted(list(set(component_keys))):
@@ -70,8 +69,8 @@ def main():
             print(str(e))
             raise e
 
-    if args.model and args.framework:
-        full_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_full_{clean(args.framework)}.csv"
+    if args.model:
+        full_model_dict = here / "model_dictionaries" / f"{clean(args.model)}_full_diffusers.csv"
         if full_model_dict.exists() and not force and input(f"File {full_model_dict} already exists, override it ? [y/N]") != "y":
             exit()
         with open(full_model_dict, "w") as full_model_file:
