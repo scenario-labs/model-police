@@ -321,13 +321,15 @@ class ModelPolice:
         tmpdirname = cache_dir / self.hash_url(url)
         tmpdirname.mkdir(exist_ok=True, parents=True)
         
-        if (m := re.match(r"^([\w-]+/[\w\.-]+):(.*\.safetensors)$", url)):
+        if (m := re.match(r"^([\w-]+/[\w\.-]+):([\w\.-]+/)?(.*\.safetensors)$", url)):
             # Assume the URL is a Huggingface path with a file name
             # Ex: "alvdansen/frosting_lane_flux:flux_dev_frostinglane_araminta_k.safetensors"
             # Ex: "alvdansen/softserve_anime:flux_dev_softstyle_araminta_k.safetensors"
-            hf_repo, weight_name = m.group(1, 2)
-            logger.info(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}")
-            full_url = hf_hub_url(hf_repo, weight_name)
+            hf_repo, subfolder, weight_name = m.group(1, 2, 3)
+            if subfolder:
+                subfolder = subfolder[:-1]
+            print(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}, folder: {subfolder}")
+            full_url = hf_hub_url(hf_repo, weight_name, subfolder=subfolder)
             return self.download(full_url, tmpdirname / weight_name)
 
         if re.match(r"^[\w-]+/[\w\d\.-]+$", url):
