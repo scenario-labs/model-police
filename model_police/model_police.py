@@ -301,7 +301,7 @@ class ModelPolice:
     def download(self, url, dest, extract=False) -> None:
         self._verify_pget_available()
         
-        if not Path(dest).exits():
+        if not Path(dest).exists():
             logger.info(f"Downloading weights with pget: {url}")
             logger.info(f" to: {dest}")
 
@@ -321,7 +321,7 @@ class ModelPolice:
         tmpdirname = cache_dir / self.hash_url(url)
         tmpdirname.mkdir(exist_ok=True, parents=True)
         
-        if (m := re.match(r"^[\w-]+/[\w\.-]+:.*\.safetensors$", url)):
+        if (m := re.match(r"^([\w-]+/[\w\.-]+):(.*\.safetensors)$", url)):
             # Assume the URL is a Huggingface path with a file name
             # Ex: "alvdansen/frosting_lane_flux:flux_dev_frostinglane_araminta_k.safetensors"
             # Ex: "alvdansen/softserve_anime:flux_dev_softstyle_araminta_k.safetensors"

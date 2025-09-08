@@ -4,7 +4,7 @@
 import argparse
 import torch
 
-from diffusers import QwenImagePipeline
+from diffusers import AutoPipelineForText2Image
 from pathlib import Path
 
 here = Path(__file__).parent
@@ -28,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     # load model
-    pipe = QwenImagePipeline.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
+    pipe = AutoPipelineForText2Image.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
 
     full_model_keys = []
     for component_name, component in list(pipe.components.items()):
@@ -41,7 +41,7 @@ def main():
             for module_name, module in component.named_modules():
                 for weight_suffix in [
                     "weight", "bias", "concept_embeds", "concept_embeds", "concept_embeds_weights",
-                    "special_care_embeds", "special_care_embeds_weights", "class_embedding", "position_ids"
+                    "special_care_embeds", "special_care_embeds_weights", "class_embedding",
                 ]: # "position_ids",
                     if (w:= getattr(module, weight_suffix, None)) is not None:
                         if isinstance(w, torch.Tensor):
