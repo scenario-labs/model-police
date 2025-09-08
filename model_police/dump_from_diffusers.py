@@ -2,6 +2,7 @@
 """ Dump layer names from pipeline """
 
 import argparse
+import sys
 import torch
 
 from diffusers import DiffusionPipeline
@@ -29,6 +30,8 @@ def main():
     # load model
     pipe = DiffusionPipeline.from_pretrained(args.repo_id, torch_dtype=torch.bfloat16)
 
+    sys.stderr.write("\n")  # clearing diffusers TQDM ;)
+
     full_model_keys = []
     for component_name, component in list(pipe.components.items()):
         if component is None or not hasattr(component, "named_parameters"):
@@ -39,14 +42,14 @@ def main():
 
             for module_name, module in component.named_modules():
                 for weight_suffix in [
-                    "weight", "bias", "concept_embeds", "concept_embeds", "concept_embeds_weights",
+                    "weight", "bias", "gamma", "concept_embeds", "concept_embeds", "concept_embeds_weights",
                     "special_care_embeds", "special_care_embeds_weights", "class_embedding",
                 ]: # "position_ids",
                     if (w:= getattr(module, weight_suffix, None)) is not None:
                         if isinstance(w, torch.Tensor):
                             shape_to_list = ','.join(map(str, list(w.shape)))
                         elif isinstance(w, float):
-                            shape_to_list = ','
+                            continue
 
                         key_without_prefix = f"{module_name + '.' if module_name else '' }{weight_suffix},{shape_to_list}"
                         component_keys.append(key_without_prefix)
