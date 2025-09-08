@@ -5,7 +5,6 @@ safety_checker.special_care_embeds_weights,3
 safety_checker.vision_model.vision_model.embeddings.class_embedding,1024
 safety_checker.vision_model.vision_model.embeddings.patch_embedding.weight,1024,3,14,14
 safety_checker.vision_model.vision_model.embeddings.position_embedding.weight,257,1024
-safety_checker.vision_model.vision_model.embeddings.position_ids,1,257
 safety_checker.vision_model.vision_model.encoder.layers.0.layer_norm1.bias,1024
 safety_checker.vision_model.vision_model.encoder.layers.0.layer_norm1.weight,1024
 safety_checker.vision_model.vision_model.encoder.layers.0.layer_norm2.bias,1024
