@@ -345,6 +345,10 @@ class ModelPolice:
             url,
         ):
             logger.info(f"Weights from Civitai: {url}")
+            civitai_token = os.getenv("CIVITAI_TOKEN")
+            if civitai_token is None:
+                raise ValueError(f"Please set env var CIVITAI_TOKEN to download from CIVITAI")
+            url += f"&token={civitai_token}"
             return self.download(url, tmpdirname / "weights.safetensors")
 
         # Remove the query parameters
