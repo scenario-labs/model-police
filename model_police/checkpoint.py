@@ -2,7 +2,8 @@
 """ Extract layer names and classify checkpoints """
 
 import argparse
-import sys
+import shutil
+import sys 
 import torch
 
 from pathlib import Path
@@ -24,18 +25,17 @@ def main():
     model_police_officer = ModelPolice()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", help="'keys' or 'classify'")
+    parser.add_argument("command", choices=['keys', 'classify'])
     parser.add_argument("checkpoint")
     args = parser.parse_args()
 
     full_models, checkpoint_list, error = model_police_officer.inspect(args.checkpoint)
     
+    sys.stderr.write("\n")  # clearing diffusers TQDM ;)
+
     if error is not None:
         raise Exception(error)
- 
-    sys.stdout.flush()
-    sys.stderr.flush()
-    print("\n\n\n")
+    
     if args.command == "keys":
         subfolders = set(str(c["subfolder"]) for c in checkpoint_list)
         add_prefix = len(subfolders) > 1
@@ -72,8 +72,7 @@ def main():
             else:
                 print("     Model components:", checkpoint["model_components"])
             print()
-    else:
-        print("Unknown command {args.command}")
+
 
 if __name__ == "__main__":
     main()

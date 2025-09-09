@@ -53,15 +53,15 @@ checkpoint keys model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors
 checkpoint keys model_bqx1GeNju51BZVJfxJ4Wm59b.safetensors > flux_lora_kohya.csv 
 ```
 
-For a dump from a diffusers pipeline, you can use the script `dump_from_diffusers` which takes as argument the repo_id, as well as full model name and framework name. It will create multiple model dictionaries and dump them in the `model_dictionaries` folder. Type will be automatically added to model dictionary names. If model and framework not given, it will dump the keys to the standard output.
+For a dump from a diffusers pipeline, you can use the script `dump_from_diffusers` which takes as argument the repo_id, and optionally the model name. In case the model name is not provided, it will dump the keys to standard output. Otherwise when model name is provide, it will create multiple model dictionaries in the `model_dictionaries` folder. Type will be automatically added to model dictionary names.
 
 ```bash
 pip install -r requirements-diffusers.txt
 
-dump_from_diffusers stable-diffusion-v1-5/stable-diffusion-v1-5 sd1-5 diffusers
-dump_from_diffusers stabilityai/stable-diffusion-xl-base-1.0 sdxl diffusers
-dump_from_diffusers black-forest-labs/FLUX.1-dev flux diffusers
-dump_from_diffusers stabilityai/stable-diffusion-3-medium-diffusers sd3 diffusers
+dump_from_diffusers stable-diffusion-v1-5/stable-diffusion-v1-5 sd1-5
+dump_from_diffusers stabilityai/stable-diffusion-xl-base-1.0 sdxl
+dump_from_diffusers black-forest-labs/FLUX.1-dev flux
+dump_from_diffusers stabilityai/stable-diffusion-3-medium-diffusers sd3
 ```
 
 
