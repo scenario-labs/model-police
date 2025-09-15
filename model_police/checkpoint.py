@@ -56,21 +56,25 @@ def main():
         print("Found full models:", full_models)
         print("Found checkpoints:")
         for checkpoint in checkpoint_list:
-            print("   - Files:")
+            print(" "*3, "- Files:")
             for f in checkpoint["files"]:
-                print(f"     - {f}")
+                print(" "*7, f"- {f}")
             
-            print(f"     is_lora: {checkpoint['is_lora']}")
+            print(" "*5, f"Lora: {checkpoint['is_lora']}")
             if checkpoint["is_lora"]:
-                print("     Lora compatibilities")
-                for model_class in checkpoint["model_classes"]:
-                    print(f"     - {model_class}({len(checkpoint['model_classes'][model_class])})")
-                    if model_class == "unknown":
-                        print(f"       Missing keys:")
-                        for k in list(checkpoint["model_classes"][model_class].keys())[:10] + ["..."]:
-                            print("            ", k)
+                print(" "*5, "Lora model compatibility:")
+                for family in checkpoint["lora_model_family"]:
+                    print(" "*7, f"- {family}")
+                    print(" "*9, f"Coverage: {checkpoint['lora_model_family'][family]['coverage']}" )
+                    family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
+                    for dictname in family_dictnames:
+                        print(" "*9, f"- {dictname} ({len(family_dictnames[dictname])})")
+                        if dictname == "unknown":
+                            print(" "*11, f"Missing keys:")
+                            for k in list(family_dictnames[dictname].keys())[:10] + ["..."]:
+                                print(" "*15, k)
             else:
-                print("     Model components:", checkpoint["model_components"])
+                print(" "*5, "Model components:", checkpoint["model_components"])
             print()
 
 
