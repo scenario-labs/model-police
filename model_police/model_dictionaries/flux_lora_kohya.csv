@@ -452,6 +452,7 @@ lora_unet_double_blocks_9_txt_attn_qkv,3072,9216
 lora_unet_double_blocks_9_txt_mlp_0,3072,12288
 lora_unet_double_blocks_9_txt_mlp_2,12288,3072
 lora_unet_double_blocks_9_txt_mod_lin,3072,18432
+lora_unet_final_layer_linear,3072,64
 lora_unet_single_blocks_0_linear1,3072,21504
 lora_unet_single_blocks_0_linear2,15360,3072
 lora_unet_single_blocks_0_modulation_lin,3072,9216
