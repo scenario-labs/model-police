@@ -4,11 +4,11 @@
     <br>
 </p>
 
-`model_police` library aims to help developers to deal with model and framework jungle. It classifies model checkpoints against model dictionaries, in order to check their class compatibility for safe loading. With following rule in mind: better add more model dictionaries than add more rules to a code base that mixes with data and ends as a manually coded random forest.
+`model_police` library aims to help deal with model and framework jungle. It classifies model checkpoints against model dictionaries, in order to check their class compatibility for safe loading. With the following rule in mind: better add more model dictionaries than add more rules to a code base that mixes with data and ends as a manually coded random forest :-)
 
 The model police inspector takes as input either a model `state_dict`, a checkpoint path, or a folder path containing full models such as Flux.1 Dev.
 
-The model police inspector requires a list of dictionaries in the folder `model_dictionaries` in the following form: `(model)_(type)_(framework)(_*).csv` where `model` is a model class identifier ('sdxl', 'flux', 'sd1-5', ...), `type` is checkpoint type ('full', 'lora', or components such as 'transformer', 'unet', 'vae', 'text-encoder', 'text-encoder-2', 'safety-checker') and `framework` is the model code format ('diffusers', 'bfl', 'kohya', ...). Anything after in the model dictionary name is ignored. The scripts `./checkpoint keys model.safetensors` and `./dump_from_diffusers repo_id` enable to easily dump new model dictionary either from a checkpoint file or folder, or for any diffusers' library pipeline. 
+The model police inspector requires a list of dictionaries in the folder `model_dictionaries` in the following form: `(model)_(type)_(framework)(_*).csv` where `model` is a model class identifier ('sdxl', 'flux', 'sd1-5', ...), `type` is checkpoint type ('full', 'lora', or components such as 'transformer', 'unet', 'vae', 'text-encoder', 'text-encoder-2', 'safety-checker') and `framework` is the model code format ('diffusers', 'bfl', 'kohya', ...). Anything else after in the model dictionary name is ignored. The scripts `./checkpoint keys model.safetensors` and `./dump_from_diffusers repo_id` enable to easily dump new model dictionary either from a checkpoint file or folder, or for any diffusers' library pipeline. 
 
 It's possible to use it as a command line:
 
