@@ -448,19 +448,28 @@ class ModelPolice:
                 if is_lora:
                     # lora classification
                     result = self.classify_lora_keys(layer_names_with_shapes)
-                
+
                     # extract state_dict that match
                     for family in result:
                         family_dictnames = result[family]["matched_dictnames"]
-                        for dictname in list(family_dictnames.keys()):     
+                        input_state_dict = state_dict.copy()
+                        for dictname in list(family_dictnames.keys()):
+                            if dictname == "unknown":
+                                continue
+
                             matched_keys = family_dictnames[dictname]
 
                             matched_state_dict = {
-                                k: state_dict.pop(k) for k in list(state_dict.keys()) 
+                                k: input_state_dict.pop(k) for k in list(input_state_dict.keys()) 
                                 if self.remove_lora_suffix(k) in matched_keys
                             }
                             assert len(matched_state_dict) > 0
                             result[family]["matched_dictnames"][dictname] = matched_state_dict
+
+                        if "unknown" in family_dictnames:
+                            family_dictnames["unknown"] = input_state_dict
+                        else:
+                            assert len(input_state_dict) == 0
 
                     checkpoint["lora_model_family"] = result
 

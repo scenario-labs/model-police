@@ -65,7 +65,8 @@ def main():
                 print(" "*5, "Lora model compatibility:")
                 for family in checkpoint["lora_model_family"]:
                     print(" "*7, f"- {family}")
-                    print(" "*9, f"Coverage: {checkpoint['lora_model_family'][family]['coverage']}" )
+                    print(" "*9, f"Coverage: {checkpoint['lora_model_family'][family]['coverage']:.2f}" )
+                    print(" "*9, f"Dictnames:" )
                     family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
                     for dictname in family_dictnames:
                         print(" "*9, f"- {dictname} ({len(family_dictnames[dictname])})")
