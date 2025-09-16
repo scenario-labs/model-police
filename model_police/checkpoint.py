@@ -76,7 +76,7 @@ def main():
                             print(" "*8, f"To check missing keys, run: `checkpoint diff {checkpoint_path} {family}`")
 
             else:
-                print(" "*5, "Model components:", checkpoint["model_components"])
+                print(" ", "Model components:", checkpoint["model_components"])
             print()
 
 
