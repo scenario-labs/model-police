@@ -470,7 +470,7 @@ class ModelPolice:
                         if "unknown" in family_dictnames:
                             family_dictnames["unknown"] = input_state_dict
                         else:
-                            print(result[family]["matched_dictnames"].keys())
+                            # print(result[family]["matched_dictnames"].keys())
                             assert len(input_state_dict) == 0, f"Unmatched keys: {input_state_dict.keys()} for family {family}"
 
                     checkpoint["lora_model_family"] = result

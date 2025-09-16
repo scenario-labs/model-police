@@ -25,11 +25,12 @@ def main():
     model_police_officer = ModelPolice()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=['keys', 'classify'])
-    parser.add_argument("checkpoint")
+    parser.add_argument("command", choices=['keys', 'classify', 'diff', 'match'])
+    parser.add_argument("params", help="Flux, SDXL, SD15...", default="", nargs='+')
     args = parser.parse_args()
-
-    full_models, checkpoint_list, error = model_police_officer.inspect(args.checkpoint)
+    
+    checkpoint_path = args.params[0]
+    full_models, checkpoint_list, error = model_police_officer.inspect(checkpoint_path)
     
     sys.stderr.write("\n")  # clearing diffusers TQDM ;)
 
@@ -56,34 +57,64 @@ def main():
         print("Found full models:", full_models)
         print("Found checkpoints:")
         for checkpoint in checkpoint_list:
-            print(" "*3, "- Files:")
+            print("- Files:")
             for f in checkpoint["files"]:
-                print(" "*7, f"- {f}")
+                print(" "*3, f"- {f}")
             
-            print(" "*5, f"Lora: {checkpoint['is_lora']}")
+            print(" ", f"Lora: {checkpoint['is_lora']}")
             if checkpoint["is_lora"]:
-                print(" "*5, "Lora model compatibility:")
+                print(" ", "Lora model compatibility:")
                 for family in checkpoint["lora_model_family"]:
-                    print(" "*7, f"- {family}")
+                    print(" ", f"- {family}")
                     coverage = checkpoint['lora_model_family'][family]['coverage']
-                    print(" "*9, f"Coverage: {coverage:.2f} ({int(coverage*100)}%)" )
-                    print(" "*9, f"Dictnames:" )
+                    print(" "*5, f"Coverage: {coverage:.2f} ({int(coverage*100)}%)" )
+                    print(" "*5, f"Dictnames:" )
                     family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
                     for dictname in family_dictnames:
-                        print(" "*9, f"- {dictname} ({len(family_dictnames[dictname])})")
-                        if dictname == "unknown" or dictname == "flux_lora_kohya ":
-                            print(" "*11, f"Missing keys:")
-                            for k in list(family_dictnames[dictname].keys())[:10] + ["..."]:
-                                print(" "*15, k)
+                        print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])})")
+                        if dictname == "unknown":
+                            print(" "*8, f"To check missing keys, run: `checkpoint diff {checkpoint_path} {family}`")
 
-
-                        if  dictname == "sdxl_lora_unknown":
-                            for k in list(family_dictnames[dictname].keys()):
-                                print(" "*15, k)
             else:
                 print(" "*5, "Model components:", checkpoint["model_components"])
             print()
 
+
+    elif args.command in ["diff", "match"]:
+        if len(args.params) == 1:
+            raise ValueError("Requires a second arg: checkpoint diff checkpoint model_family\n")
+        family = args.params[1]
+
+        if len(full_models):
+            raise ValueError(f"Found full models: {full_models}, works only with lora\n")
+
+        if len(checkpoint_list) > 1:
+            raise ValueError(f"Found multiple checkpoints {[c['files'][0] for c in checkpoint_list]}, works only with lora\n")
+
+        checkpoint = checkpoint_list[0]
+
+        if not checkpoint["is_lora"]:
+            raise ValueError("Works only with loras")
+
+        if family not in checkpoint["lora_model_family"]:
+            raise ValueError(f"Family not found")
+        family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
+
+        if args.command == "diff":
+            if "unknown" not in family_dictnames:
+                exit()
+
+            for k in list(family_dictnames["unknown"].keys()):
+                sys.stdout.write(k + "\n")
+
+        else: # match
+            all_keys = set()
+            for d in family_dictnames:
+                if d == "unknown":
+                    continue
+                all_keys.update(family_dictnames[d].keys())
+            for k in sorted(all_keys):
+                sys.stdout.write(k + "\n")
 
 if __name__ == "__main__":
     main()
