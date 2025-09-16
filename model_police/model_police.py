@@ -247,8 +247,8 @@ class ModelPolice:
 
                 if len(matched_keys):
                     family_dictnames[matched_dictname] = matched_keys
+                    input_keys = remaining_keys
 
-                input_keys = remaining_keys
                 if not len(remaining_keys):
                     break  # break for dict loop since all keys have been covered
 
@@ -259,6 +259,7 @@ class ModelPolice:
             result[family] = {
                 "matched_dictnames": family_dictnames,
                 "coverage": (nb_keys - unknown) / nb_keys,
+                "num_missing": unknown,
             }
 
         return result
@@ -469,7 +470,8 @@ class ModelPolice:
                         if "unknown" in family_dictnames:
                             family_dictnames["unknown"] = input_state_dict
                         else:
-                            assert len(input_state_dict) == 0
+                            print(result[family]["matched_dictnames"].keys())
+                            assert len(input_state_dict) == 0, f"Unmatched keys: {input_state_dict.keys()} for family {family}"
 
                     checkpoint["lora_model_family"] = result
 

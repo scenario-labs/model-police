@@ -65,14 +65,20 @@ def main():
                 print(" "*5, "Lora model compatibility:")
                 for family in checkpoint["lora_model_family"]:
                     print(" "*7, f"- {family}")
-                    print(" "*9, f"Coverage: {checkpoint['lora_model_family'][family]['coverage']:.2f}" )
+                    coverage = checkpoint['lora_model_family'][family]['coverage']
+                    print(" "*9, f"Coverage: {coverage:.2f} ({int(coverage*100)}%)" )
                     print(" "*9, f"Dictnames:" )
                     family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
                     for dictname in family_dictnames:
                         print(" "*9, f"- {dictname} ({len(family_dictnames[dictname])})")
-                        if dictname == "unknown":
+                        if dictname == "unknown" or dictname == "flux_lora_kohya ":
                             print(" "*11, f"Missing keys:")
                             for k in list(family_dictnames[dictname].keys())[:10] + ["..."]:
+                                print(" "*15, k)
+
+
+                        if  dictname == "sdxl_lora_unknown":
+                            for k in list(family_dictnames[dictname].keys()):
                                 print(" "*15, k)
             else:
                 print(" "*5, "Model components:", checkpoint["model_components"])
