@@ -195,29 +195,17 @@ class ModelPolice:
         return ','.join(key)
 
 
-    def classify_keys(self, layer_names_with_shapes, is_lora=True):
+    def classify_lora_keys(self, layer_names_with_shapes):
         if not layer_names_with_shapes:
             return {}
 
-        if is_lora:
-            input_keys = layer_names_with_shapes.copy()
-            _layername_and_shape_to_dictname = self._layername_and_shape_to_dictname
-        else:
-            input_keys = [ k.split(",")[0] for k in layer_names_with_shapes ]  # removing shape
-            
-            _layername_and_shape_to_dictname = {}
-            for k, v in self._layername_and_shape_to_dictname.items(): 
-                k = k.split(",")[0]
-                if k in _layername_and_shape_to_dictname: # avoid overrides
-                    _layername_and_shape_to_dictname[k].extend(v)
-                else:
-                    _layername_and_shape_to_dictname[k] = v.copy()
+        nb_keys = len(layer_names_with_shapes)
 
         # vote for dictname
         dictname_votes = {}
-        for k in input_keys:
-            if k in _layername_and_shape_to_dictname:
-                for d in _layername_and_shape_to_dictname[k]:
+        for k in layer_names_with_shapes:
+            if k in self._layername_and_shape_to_dictname:
+                for d in self._layername_and_shape_to_dictname[k]:
                     if d not in dictname_votes:
                         dictname_votes[d] = 1
                     else:
@@ -227,28 +215,54 @@ class ModelPolice:
         for d in list(dictname_votes.keys()):
             dictname_votes[d] = (dictname_votes[d], dictname_votes[d] / len(self._model_dictionaries[d]))
 
-        model_classes = {}
-        for matched_dictname, (num_matched_keys, model_recall) in sorted(dictname_votes.items(), key=lambda x:x[1], reverse=True):
-            # find keys 
-            matched_keys = []
-            remaining_keys = []
-            for k in input_keys:
-                if k in _layername_and_shape_to_dictname and matched_dictname in _layername_and_shape_to_dictname[k]:
-                    matched_keys.append(k.split(",")[0])
-                else:
-                    remaining_keys.append(k)
+        # sort by coverage first, then recall
+        sorted_dictname_votes = sorted(
+            dictname_votes.items(), key=lambda x:x[1], reverse=True,
+        )
 
-            if len(matched_keys):
-                model_classes[matched_dictname] = matched_keys
+        # group matcheds by model families
+        matched_families = list(set([d.split("_")[0] for d in dictname_votes]))
 
-            input_keys = remaining_keys
-            if not len(remaining_keys):
-                break
+        # find best coverage by family
+        result = {}
+        for family in matched_families:
+            input_keys = layer_names_with_shapes.copy()
 
-        if len(input_keys) > 0:
-            model_classes["unknown"] = [k.split(",")[0] for k in input_keys]
+            family_dictnames = {}
+            for matched_dictname, (num_matched_keys, model_recall) in sorted_dictname_votes:
+                if matched_dictname.split("_")[0] != family:
+                    continue
+                
+                # find keys 
+                matched_keys = []
+                remaining_keys = []
+                for k in input_keys:
+                    if (
+                        k in self._layername_and_shape_to_dictname and 
+                        matched_dictname in self._layername_and_shape_to_dictname[k]
+                    ):
+                        matched_keys.append(k.split(",")[0])
+                    else:
+                        remaining_keys.append(k)
 
-        return model_classes
+                if len(matched_keys):
+                    family_dictnames[matched_dictname] = matched_keys
+                    input_keys = remaining_keys
+
+                if not len(remaining_keys):
+                    break  # break for dict loop since all keys have been covered
+
+            if len(input_keys) > 0:
+                family_dictnames["unknown"] = [k.split(",")[0] for k in input_keys]
+            
+            unknown = len(family_dictnames["unknown"]) if "unknown" in family_dictnames else 0
+            result[family] = {
+                "matched_dictnames": family_dictnames,
+                "coverage": (nb_keys - unknown) / nb_keys,
+                "num_missing": unknown,
+            }
+
+        return result
 
 
     @staticmethod
@@ -429,25 +443,41 @@ class ModelPolice:
                     "is_lora": is_lora,
                     "layer_names_with_shapes": layer_names_with_shapes,
                     "model_components": [],
-                    "model_classes": {},
+                    "lora_model_family": {},
                 })
 
                 if is_lora:
                     # lora classification
-                    model_classes = self.classify_keys(layer_names_with_shapes, is_lora=is_lora)
-                
-                    for model_class in list(model_classes.keys()):     
-                        matched_keys = model_classes[model_class]
+                    result = self.classify_lora_keys(layer_names_with_shapes)
 
-                        # extract state_dict that match
-                        matched_state_dict = {
-                            k: state_dict.pop(k) for k in list(state_dict.keys()) 
-                            if self.remove_lora_suffix(k) in matched_keys
-                        }
-                        assert len(matched_state_dict) > 0
-                        model_classes[model_class] = matched_state_dict
+                    # extract state_dict that match
+                    for family in result:
+                        family_dictnames = result[family]["matched_dictnames"]
+                        input_state_dict = state_dict.copy()
+                        for dictname in list(family_dictnames.keys()):
+                            if dictname == "unknown":
+                                continue
 
-                    checkpoint["model_classes"] = model_classes
+                            matched_keys = family_dictnames[dictname]
+
+                            matched_state_dict = {
+                                k: input_state_dict.pop(k) for k in list(input_state_dict.keys()) 
+                                if self.remove_lora_suffix(k) in matched_keys
+                            }
+                            assert len(matched_state_dict) > 0
+                            result[family]["matched_dictnames"][dictname] = matched_state_dict
+
+                        if "unknown" in family_dictnames:
+                            family_dictnames["unknown"] = input_state_dict
+                        else:
+                            for k in list(input_state_dict.keys()):
+                                if torch.all(input_state_dict[k] == 0).item():
+                                    input_state_dict.pop(k)
+                            if len(input_state_dict):
+                                family_dictnames["unknown"] = input_state_dict
+                                logger.warning(f"Unmatched keys: {input_state_dict.keys()} for family {family}")
+
+                    checkpoint["lora_model_family"] = result
 
                 else:
                     # find model parts
