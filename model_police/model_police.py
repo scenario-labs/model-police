@@ -369,6 +369,20 @@ class ModelPolice:
             url += f"&token={civitai_token}"
             return self.download(url, tmpdirname / "weights.safetensors")
 
+        if re.match(
+            r"^https?://civitai.com/models/\d+\?modelVersionId=\d+",
+            url,
+        ):
+            logger.info(f"Weights from Civitai: {url}")
+            model_version_id = re.match(r"^https?://civitai.com/models/\d+\?modelVersionId=(\d+)", url).group(1)
+            print(model_version_id)
+            civitai_token = os.getenv("CIVITAI_TOKEN")
+            if civitai_token is None:
+                raise ValueError(f"Please set env var CIVITAI_TOKEN to download from CIVITAI")
+            download_url = f"https://civitai.com/api/download/models/{model_version_id}?token={civitai_token}"
+            logger.info(f"Downloading from: {download_url}")
+            return self.download(download_url, tmpdirname / "weights.safetensors")
+
         # Remove the query parameters
         base_url = url.split("?")[0]
         if base_url.endswith(".safetensors"):
