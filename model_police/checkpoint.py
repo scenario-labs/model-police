@@ -8,7 +8,7 @@ import torch
 
 from pathlib import Path
 
-from model_police import ModelPolice
+from .model_police import ModelPolice
 
 here = Path(__file__).parent
 
