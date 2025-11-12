@@ -379,7 +379,7 @@ class ModelPolice:
             civitai_token = os.getenv("CIVITAI_TOKEN")
             if civitai_token is None:
                 raise ValueError(f"Please set env var CIVITAI_TOKEN to download from CIVITAI")
-            download_url = f"https://civitai.com/api/download/models/{model_version_id}?token={civitai_token}"
+            download_url = f"https://civitai.com/api/download/models/{model_version_id}?type=Model&format=SafeTensor&token={civitai_token}"
             logger.info(f"Downloading from: {download_url}")
             return self.download(download_url, tmpdirname / "weights.safetensors")
 
