@@ -489,7 +489,7 @@ class ModelPolice:
                                     input_state_dict.pop(k)
                             if len(input_state_dict):
                                 family_dictnames["unknown"] = input_state_dict
-                                logger.warning(f"Unmatched keys: {input_state_dict.keys()} for family {family}")
+                                logger.warning(f"{len(input_state_dict)} unmatched keys: {input_state_dict.keys()} for family {family}")
 
                     checkpoint["lora_model_family"] = result
 
