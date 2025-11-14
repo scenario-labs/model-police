@@ -78,11 +78,10 @@ Model dictionaries are in `model_dictionaries` folder. Naming convention is `mod
 
 #### a note about Wan dictionaries:
 
-- **wan2-14b_lora_wanai**: lora models loadable on any Wan 14B transformer (either Wan 2.1 transformer, or wan 2.2 transformers) - all tasks (T2V, I2V, TI2V)
-- **wan2-low-i2v-14b_lora_wanai** : lora models loadable only on Low Noise Wan 2.2 14B transformer or Wan 2.1 14B transformer for I2V task  
-- **wan2-high-i2v-14b_lora_wanai**: lora models loadable only on the Wan 2.2 high noise 14B transformer for I2V task
+- **wan2-14b_lora_wanai**: lora models loadable on any Wan 14B transformer (either Wan 2.1 transformer, or Wan 2.2 transformers) - all tasks (T2V, I2V, TI2V)
+- **wan2-1-i2v-14b_lora_wanai** : lora models loadable only on Wan 2.1 14B transformer for I2V task  
 - **wan2-5b_lora_wanai**: lora models loadable on any Wan 5B transformer
-
+- **wan2-1_lora_kohya**: lora model loadable on any Wan 2.1 with Diffusers
 
 ### limitations
 
