@@ -343,7 +343,7 @@ class ModelPolice:
             # Ex: "alvdansen/frosting_lane_flux:flux_dev_frostinglane_araminta_k.safetensors"
             # Ex: "alvdansen/softserve_anime:flux_dev_softstyle_araminta_k.safetensors"
             hf_repo, subfolder, weight_name = m.group(1, 2, 3)
-            if subfolder:
+            if subfolder: # remove /
                 subfolder = subfolder[:-1]
             logger.info(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}, folder: {subfolder}")
             full_url = hf_hub_url(hf_repo, weight_name, subfolder=subfolder)
@@ -351,6 +351,16 @@ class ModelPolice:
                 tmpdirname = tmpdirname / subfolder
                 tmpdirname.mkdir(exist_ok=True)
             return self.download(full_url, tmpdirname / weight_name)
+
+        if (m := re.match(r"^(.+/.+):(.*)$", url)):
+            # Assume the URL is a Huggingface path with a directory
+            # Ex: "Wan-AI/Wan2.1-T2V-1.3B-Diffusers:transformer"
+            hf_repo, subfolder = m.group(1, 2)
+            if subfolder[-1] == "/": # remove /
+                subfolder = subfolder[:-1]
+            logger.info(f"Weights from Huggingface repo id: {hf_repo}, folder: {subfolder}")
+            snapshot_download(repo_id=hf_repo, allow_patterns=[f"{subfolder}/*.safetensors", f"{subfolder}/*.gguf"], local_dir=tmpdirname)
+            return tmpdirname
 
         if re.match(r"^[\w-]+/[\w\d\.-]+$", url):
             logger.info(f"Weights from Huggingface repo id: {url}")
