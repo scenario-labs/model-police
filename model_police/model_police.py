@@ -117,15 +117,21 @@ class ModelPolice:
         ])
 
 
+    def has_ignore_suffix(self, key):
+        if "," in key:
+            key = key.split(",")[0]
+        for suffix in self._lora_ignore_suffixes:
+            if key.endswith(suffix):
+                return True
+        return False
+
+
     def is_lora(self, state_dict, first_key_only=False):
         is_lora = None
         for key in state_dict:
 
-            _next = False
-            for suffix in self._lora_ignore_suffixes:
-                if key.endswith(suffix):
-                    _next = True 
-            if _next: continue
+            if self.has_ignore_suffix(key): 
+                continue
 
             _is_lora_key = False
             for suffix in self._lora_down_suffixes + self._lora_up_suffixes:
@@ -201,7 +207,8 @@ class ModelPolice:
 
         nb_keys = len(layer_names_with_shapes)
 
-        # vote for dictname
+        # dictname votes:
+        # ditname_votes counts the number of keys that belong to dictionary name
         dictname_votes = {}
         for k in layer_names_with_shapes:
             if k in self._layername_and_shape_to_dictname:
@@ -212,22 +219,24 @@ class ModelPolice:
                         dictname_votes[d] += 1
 
         # add the recall
+        #  i.e. which percentage of the dictname keys the matched keys represent for each dictname
         for d in list(dictname_votes.keys()):
             dictname_votes[d] = (dictname_votes[d], dictname_votes[d] / len(self._model_dictionaries[d]))
 
-        # sort by coverage first, then recall
+        # sort dictionary names by coverage first, then recall
         sorted_dictname_votes = sorted(
             dictname_votes.items(), key=lambda x:x[1], reverse=True,
         )
 
-        # group matcheds by model families
+        # group matched keys by model families
         matched_families = list(set([d.split("_")[0] for d in dictname_votes]))
 
-        # find best coverage by family
+        # find best coverage for each family
         result = {}
         for family in matched_families:
             input_keys = layer_names_with_shapes.copy()
-
+            
+            # filter dictnames that belong to this family
             family_dictnames = {}
             for matched_dictname, (num_matched_keys, model_recall) in sorted_dictname_votes:
                 if matched_dictname.split("_")[0] != family:
@@ -252,9 +261,9 @@ class ModelPolice:
                 if not len(remaining_keys):
                     break  # break for dict loop since all keys have been covered
 
-            if len(input_keys) > 0:
+            if input_keys:
                 family_dictnames["unknown"] = [k.split(",")[0] for k in input_keys]
-            
+
             unknown = len(family_dictnames["unknown"]) if "unknown" in family_dictnames else 0
             result[family] = {
                 "matched_dictnames": family_dictnames,
@@ -387,7 +396,6 @@ class ModelPolice:
         ):
             logger.info(f"Weights from Civitai: {url}")
             model_version_id = re.match(r"^https?://civitai.com/models/\d+\?modelVersionId=(\d+)", url).group(1)
-            print(model_version_id)
             civitai_token = os.getenv("CIVITAI_TOKEN")
             if civitai_token is None:
                 raise ValueError(f"Please set env var CIVITAI_TOKEN to download from CIVITAI")
@@ -461,11 +469,13 @@ class ModelPolice:
 
                 # layer_names_with_shapes creation
                 if is_lora:
+                    # only lora up and down suffixes are considered
                     layer_names_with_shapes = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
                 else:
                     layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
                 checkpoint.update({
+                    "num_keys": len(state_dict_shapes),
                     "is_lora": is_lora,
                     "layer_names_with_shapes": layer_names_with_shapes,
                     "model_components": [],
@@ -479,7 +489,15 @@ class ModelPolice:
                     # extract state_dict that match
                     for family in result:
                         family_dictnames = result[family]["matched_dictnames"]
+                        
+                        # get ignored keys and state dict without ignored keys                      
                         input_state_dict = state_dict.copy()
+                        ignored = []
+                        for k in list(state_dict.keys()):
+                            if self.has_ignore_suffix(k):
+                                ignored.append(k)
+                                input_state_dict.pop(k)
+
                         for dictname in list(family_dictnames.keys()):
                             if dictname == "unknown":
                                 continue
@@ -499,9 +517,13 @@ class ModelPolice:
                             for k in list(input_state_dict.keys()):
                                 if torch.all(input_state_dict[k] == 0).item():
                                     input_state_dict.pop(k)
+
                             if len(input_state_dict):
                                 family_dictnames["unknown"] = input_state_dict
-                                logger.warning(f"{len(input_state_dict)} unmatched keys: {input_state_dict.keys()} for family {family}")
+                                # logger.warning(f"{len(input_state_dict)} unmatched keys: {input_state_dict.keys()} for family {family}")
+
+                        if len(ignored):
+                            family_dictnames["ignored"] = ignored
 
                     checkpoint["lora_model_family"] = result
 

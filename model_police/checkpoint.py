@@ -62,6 +62,7 @@ def main():
                 print(" "*3, f"- {f}")
             
             print(" ", f"Lora: {checkpoint['is_lora']}")
+            print(" ", f"Num keys: {checkpoint['num_keys']}")
             if checkpoint["is_lora"]:
                 print(" ", "Lora model compatibility:")
                 for family in checkpoint["lora_model_family"]:
