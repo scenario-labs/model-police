@@ -358,7 +358,7 @@ class ModelPolice:
             full_url = hf_hub_url(hf_repo, weight_name, subfolder=subfolder)
             if subfolder:
                 tmpdirname = tmpdirname / subfolder
-                tmpdirname.mkdir(exist_ok=True)
+                tmpdirname.mkdir(exist_ok=True, parents=True)
             return self.download(full_url, tmpdirname / weight_name)
 
         if (m := re.match(r"^(.+/.+):(.*)$", url)):
