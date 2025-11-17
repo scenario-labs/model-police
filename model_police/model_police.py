@@ -238,6 +238,7 @@ class ModelPolice:
             
             # filter dictnames that belong to this family
             family_dictnames = {}
+            dictnames_recall = {} 
             for matched_dictname, (num_matched_keys, model_recall) in sorted_dictname_votes:
                 if matched_dictname.split("_")[0] != family:
                     continue
@@ -261,12 +262,16 @@ class ModelPolice:
                 if not len(remaining_keys):
                     break  # break for dict loop since all keys have been covered
 
+                dictnames_recall[matched_dictname] = len(matched_keys)/len(self._model_dictionaries[matched_dictname]) / 2  # lora up and down count twice
+
             if input_keys:
                 family_dictnames["unknown"] = [k.split(",")[0] for k in input_keys]
+                dictnames_recall["unknown"] = None
 
             unknown = len(family_dictnames["unknown"]) if "unknown" in family_dictnames else 0
             result[family] = {
                 "matched_dictnames": family_dictnames,
+                "matched_dictnames_recall": dictnames_recall,
                 "coverage": (nb_keys - unknown) / nb_keys,
                 "num_missing": unknown,
             }
@@ -275,9 +280,29 @@ class ModelPolice:
 
 
     @staticmethod
-    def is_fully_covered(dict_keys, all_keys):
+    def get_coverage_and_dropratio(dict_keys, checkpoint_keys):
+        coverage = 0 # number of keys in the dict_keys that are covered (have weights in checkpoint)
+        dropped = 0 # number of keys in the checkpoints that have no match and will be dropped if loaded on that model
+
+        dict_len = len(dict_keys)
+        num_keys = len(checkpoint_keys)
+
+        all_keys = set(list(dict_keys) + list(checkpoint_keys))
+        for key in all_keys:
+            if key in dict_keys and key in checkpoint_keys:
+                coverage += 1
+            elif key not in dict_keys:
+                dropped += 1
+
+        coverage = coverage / dict_len
+        drop_ratio = dropped / num_keys
+
+        return coverage, drop_ratio
+
+
+        # on veut que toutes les clés du dictionnaires soient covertes
         for key in dict_keys:
-            if key not in all_keys:
+            if key not in keys:
                 return False
         return True
 
@@ -489,7 +514,8 @@ class ModelPolice:
                     # extract state_dict that match
                     for family in result:
                         family_dictnames = result[family]["matched_dictnames"]
-                        
+                        family_dictnames_recall = result[family]["matched_dictnames_recall"]
+
                         # get ignored keys and state dict without ignored keys                      
                         input_state_dict = state_dict.copy()
                         ignored = []
@@ -503,16 +529,19 @@ class ModelPolice:
                                 continue
 
                             matched_keys = family_dictnames[dictname]
+                            recall = family_dictnames_recall[dictname]
 
                             matched_state_dict = {
                                 k: input_state_dict.pop(k) for k in list(input_state_dict.keys()) 
                                 if self.remove_lora_suffix(k) in matched_keys
                             }
                             assert len(matched_state_dict) > 0
-                            result[family]["matched_dictnames"][dictname] = matched_state_dict
+                            family_dictnames[dictname] = matched_state_dict
 
                         if "unknown" in family_dictnames:
                             family_dictnames["unknown"] = input_state_dict
+                            family_dictnames_recall["unknown"] = 0
+
                         else:
                             for k in list(input_state_dict.keys()):
                                 if torch.all(input_state_dict[k] == 0).item():
@@ -520,17 +549,19 @@ class ModelPolice:
 
                             if len(input_state_dict):
                                 family_dictnames["unknown"] = input_state_dict
-                                # logger.warning(f"{len(input_state_dict)} unmatched keys: {input_state_dict.keys()} for family {family}")
+                                family_dictnames_recall["unknown"] = 0
 
                         if len(ignored):
                             family_dictnames["ignored"] = ignored
+                            family_dictnames_recall["ignored"] = 0
 
                     checkpoint["lora_model_family"] = result
 
                 else:
                     # find model parts
                     for dict_name, dict_keys in self._model_dictionaries.items():
-                        if self.is_fully_covered(dict_keys, layer_names_with_shapes):
+                        coverage, drop_ratio = self.get_coverage_and_dropratio(dict_keys, layer_names_with_shapes)
+                        if coverage == 1.0 and drop_ratio == 0:
                             checkpoint["model_components"].append(dict_name)
 
             # full and part model detection:
@@ -543,8 +574,10 @@ class ModelPolice:
 
             full_models = []
             for dict_name, dict_keys in self._model_dictionaries.items():
-                if "full" in dict_name and self.is_fully_covered(dict_keys, all_keys):
-                    full_models.append(dict_name)
+                if "full" in dict_name:
+                    coverage, drop_ratio = self.get_coverage_and_dropratio(dict_keys, all_keys)
+                    if coverage == 1. and drop_ratio == 0.:
+                        full_models.append(dict_name)
 
             return full_models, checkpoint_list, error
 
