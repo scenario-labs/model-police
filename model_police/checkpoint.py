@@ -68,11 +68,14 @@ def main():
                 for family in checkpoint["lora_model_family"]:
                     print(" ", f"- {family}")
                     coverage = checkpoint['lora_model_family'][family]['coverage']
-                    print(" "*5, f"Coverage: {coverage:.2f} ({int(coverage*100)}%)" )
+                    print(" "*5, f"Coverage: {coverage:.2f} ({int(coverage*100)}%)" )  
                     print(" "*5, f"Dictnames:" )
                     family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
                     for dictname in family_dictnames:
-                        print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])})")
+                        if dictname not in ["unknown", "ignored"]:
+                            print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])} keys - recall {int(len(family_dictnames[dictname])/len(model_police_officer._model_dictionaries[dictname]) *100 / 2)}%)")
+                        else:
+                            print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])} keys)")
                         if dictname == "unknown":
                             print(" "*8, f"To check missing keys, run: `checkpoint diff {checkpoint_path} {family}`")
 
