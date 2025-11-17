@@ -257,16 +257,14 @@ class ModelPolice:
 
                 if len(matched_keys):
                     family_dictnames[matched_dictname] = matched_keys
+                    dictnames_recall[matched_dictname] = len(matched_keys) / len(self._model_dictionaries[matched_dictname])
                     input_keys = remaining_keys
 
                 if not len(remaining_keys):
                     break  # break for dict loop since all keys have been covered
 
-                dictnames_recall[matched_dictname] = len(matched_keys)/len(self._model_dictionaries[matched_dictname]) / 2  # lora up and down count twice
-
             if input_keys:
                 family_dictnames["unknown"] = [k.split(",")[0] for k in input_keys]
-                dictnames_recall["unknown"] = None
 
             unknown = len(family_dictnames["unknown"]) if "unknown" in family_dictnames else 0
             result[family] = {
@@ -529,7 +527,6 @@ class ModelPolice:
                                 continue
 
                             matched_keys = family_dictnames[dictname]
-                            recall = family_dictnames_recall[dictname]
 
                             matched_state_dict = {
                                 k: input_state_dict.pop(k) for k in list(input_state_dict.keys()) 
@@ -540,7 +537,6 @@ class ModelPolice:
 
                         if "unknown" in family_dictnames:
                             family_dictnames["unknown"] = input_state_dict
-                            family_dictnames_recall["unknown"] = 0
 
                         else:
                             for k in list(input_state_dict.keys()):
@@ -549,11 +545,9 @@ class ModelPolice:
 
                             if len(input_state_dict):
                                 family_dictnames["unknown"] = input_state_dict
-                                family_dictnames_recall["unknown"] = 0
 
                         if len(ignored):
                             family_dictnames["ignored"] = ignored
-                            family_dictnames_recall["ignored"] = 0
 
                     checkpoint["lora_model_family"] = result
 

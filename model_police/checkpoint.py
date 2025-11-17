@@ -73,7 +73,8 @@ def main():
                     family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
                     family_dictnames_recall = checkpoint["lora_model_family"][family]["matched_dictnames_recall"]
                     for dictname in family_dictnames:
-                        print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])} keys - recall {int(family_dictnames_recall[dictname] *100)}%)")
+                        recall = f" - recall: {int(family_dictnames_recall[dictname]*100)}%" if dictname in family_dictnames_recall else ""
+                        print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])} keys{recall})")
                         if dictname == "unknown":
                             print(" "*8, f"To check missing keys, run: `checkpoint diff {checkpoint_path} {family}`")
 
