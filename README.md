@@ -75,6 +75,14 @@ dump_from_diffusers stabilityai/stable-diffusion-3-medium-diffusers sd3
 Model dictionaries are in `model_dictionaries` folder. Naming convention is `model_type_framework(*).csv`. For example: `flux_full_diffusers.csv`, `flux_lora_kohya.csv`, or `flux_lora_kohya_1.csv`
 
 
+
+#### a note about Wan dictionaries:
+
+- **wan2-14b_lora_wanai**: lora models loadable on any Wan 14B transformer (either Wan 2.1 transformer, or Wan 2.2 transformers) - all tasks (T2V, I2V, TI2V)
+- **wan2-1-i2v-14b_lora_wanai** : lora models loadable only on Wan 2.1 14B transformer for I2V task  
+- **wan2-5b_lora_wanai**: lora models loadable on any Wan 5B transformer
+- **wan2-1_lora_kohya**: lora model loadable on any Wan 2.1 with Diffusers
+
 ### limitations
 
 - the lib only reads gguf and safetensors. In particular, it does not read binary and onnx files yet.

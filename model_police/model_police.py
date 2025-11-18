@@ -117,15 +117,21 @@ class ModelPolice:
         ])
 
 
+    def has_ignore_suffix(self, key):
+        if "," in key:
+            key = key.split(",")[0]
+        for suffix in self._lora_ignore_suffixes:
+            if key.endswith(suffix):
+                return True
+        return False
+
+
     def is_lora(self, state_dict, first_key_only=False):
         is_lora = None
         for key in state_dict:
 
-            _next = False
-            for suffix in self._lora_ignore_suffixes:
-                if key.endswith(suffix):
-                    _next = True 
-            if _next: continue
+            if self.has_ignore_suffix(key): 
+                continue
 
             _is_lora_key = False
             for suffix in self._lora_down_suffixes + self._lora_up_suffixes:
@@ -201,7 +207,8 @@ class ModelPolice:
 
         nb_keys = len(layer_names_with_shapes)
 
-        # vote for dictname
+        # dictname votes:
+        # ditname_votes counts the number of keys that belong to dictionary name
         dictname_votes = {}
         for k in layer_names_with_shapes:
             if k in self._layername_and_shape_to_dictname:
@@ -212,23 +219,26 @@ class ModelPolice:
                         dictname_votes[d] += 1
 
         # add the recall
+        #  i.e. which percentage of the dictname keys the matched keys represent for each dictname
         for d in list(dictname_votes.keys()):
             dictname_votes[d] = (dictname_votes[d], dictname_votes[d] / len(self._model_dictionaries[d]))
 
-        # sort by coverage first, then recall
+        # sort dictionary names by coverage first, then recall
         sorted_dictname_votes = sorted(
             dictname_votes.items(), key=lambda x:x[1], reverse=True,
         )
 
-        # group matcheds by model families
+        # group matched keys by model families
         matched_families = list(set([d.split("_")[0] for d in dictname_votes]))
 
-        # find best coverage by family
+        # find best coverage for each family
         result = {}
         for family in matched_families:
             input_keys = layer_names_with_shapes.copy()
-
+            
+            # filter dictnames that belong to this family
             family_dictnames = {}
+            dictnames_recall = {} 
             for matched_dictname, (num_matched_keys, model_recall) in sorted_dictname_votes:
                 if matched_dictname.split("_")[0] != family:
                     continue
@@ -247,17 +257,19 @@ class ModelPolice:
 
                 if len(matched_keys):
                     family_dictnames[matched_dictname] = matched_keys
+                    dictnames_recall[matched_dictname] = len(matched_keys) / len(self._model_dictionaries[matched_dictname])
                     input_keys = remaining_keys
 
                 if not len(remaining_keys):
                     break  # break for dict loop since all keys have been covered
 
-            if len(input_keys) > 0:
+            if input_keys:
                 family_dictnames["unknown"] = [k.split(",")[0] for k in input_keys]
-            
+
             unknown = len(family_dictnames["unknown"]) if "unknown" in family_dictnames else 0
             result[family] = {
                 "matched_dictnames": family_dictnames,
+                "matched_dictnames_recall": dictnames_recall,
                 "coverage": (nb_keys - unknown) / nb_keys,
                 "num_missing": unknown,
             }
@@ -266,9 +278,29 @@ class ModelPolice:
 
 
     @staticmethod
-    def is_fully_covered(dict_keys, all_keys):
+    def get_coverage_and_dropratio(dict_keys, checkpoint_keys):
+        coverage = 0 # number of keys in the dict_keys that are covered (have weights in checkpoint)
+        dropped = 0 # number of keys in the checkpoints that have no match and will be dropped if loaded on that model
+
+        dict_len = len(dict_keys)
+        num_keys = len(checkpoint_keys)
+
+        all_keys = set(list(dict_keys) + list(checkpoint_keys))
+        for key in all_keys:
+            if key in dict_keys and key in checkpoint_keys:
+                coverage += 1
+            elif key not in dict_keys:
+                dropped += 1
+
+        coverage = coverage / dict_len
+        drop_ratio = dropped / num_keys
+
+        return coverage, drop_ratio
+
+
+        # on veut que toutes les clés du dictionnaires soient covertes
         for key in dict_keys:
-            if key not in all_keys:
+            if key not in keys:
                 return False
         return True
 
@@ -338,17 +370,29 @@ class ModelPolice:
         cache_dir = Path(os.getenv("CACHE_MODEL_POLICE", Path.home() / ".cache/modelpolice"))
         tmpdirname = cache_dir / self.hash_url(url)
         tmpdirname.mkdir(exist_ok=True, parents=True)
-        
-        if (m := re.match(r"^([\w-]+/[\w\.-]+):([\w\.-]+/)?(.*\.safetensors)$", url)):
+        if (m := re.match(r"^(.+/.+):(.+/)?([^/]*\.safetensors)$", url)):
             # Assume the URL is a Huggingface path with a file name
             # Ex: "alvdansen/frosting_lane_flux:flux_dev_frostinglane_araminta_k.safetensors"
             # Ex: "alvdansen/softserve_anime:flux_dev_softstyle_araminta_k.safetensors"
             hf_repo, subfolder, weight_name = m.group(1, 2, 3)
-            if subfolder:
+            if subfolder: # remove /
                 subfolder = subfolder[:-1]
             logger.info(f"Weights from Huggingface repo id: {hf_repo}, weight name: {weight_name}, folder: {subfolder}")
             full_url = hf_hub_url(hf_repo, weight_name, subfolder=subfolder)
+            if subfolder:
+                tmpdirname = tmpdirname / subfolder
+                tmpdirname.mkdir(exist_ok=True, parents=True)
             return self.download(full_url, tmpdirname / weight_name)
+
+        if (m := re.match(r"^(.+/.+):(.*)$", url)):
+            # Assume the URL is a Huggingface path with a directory
+            # Ex: "Wan-AI/Wan2.1-T2V-1.3B-Diffusers:transformer"
+            hf_repo, subfolder = m.group(1, 2)
+            if subfolder[-1] == "/": # remove /
+                subfolder = subfolder[:-1]
+            logger.info(f"Weights from Huggingface repo id: {hf_repo}, folder: {subfolder}")
+            snapshot_download(repo_id=hf_repo, allow_patterns=[f"{subfolder}/*.safetensors", f"{subfolder}/*.gguf"], local_dir=tmpdirname)
+            return tmpdirname
 
         if re.match(r"^[\w-]+/[\w\d\.-]+$", url):
             logger.info(f"Weights from Huggingface repo id: {url}")
@@ -368,6 +412,19 @@ class ModelPolice:
                 raise ValueError(f"Please set env var CIVITAI_TOKEN to download from CIVITAI")
             url += f"&token={civitai_token}"
             return self.download(url, tmpdirname / "weights.safetensors")
+
+        if re.match(
+            r"^https?://civitai.com/models/\d+\?modelVersionId=\d+",
+            url,
+        ):
+            logger.info(f"Weights from Civitai: {url}")
+            model_version_id = re.match(r"^https?://civitai.com/models/\d+\?modelVersionId=(\d+)", url).group(1)
+            civitai_token = os.getenv("CIVITAI_TOKEN")
+            if civitai_token is None:
+                raise ValueError(f"Please set env var CIVITAI_TOKEN to download from CIVITAI")
+            download_url = f"https://civitai.com/api/download/models/{model_version_id}?type=Model&format=SafeTensor&token={civitai_token}"
+            logger.info(f"Downloading from: {download_url}")
+            return self.download(download_url, tmpdirname / "weights.safetensors")
 
         # Remove the query parameters
         base_url = url.split("?")[0]
@@ -435,11 +492,13 @@ class ModelPolice:
 
                 # layer_names_with_shapes creation
                 if is_lora:
+                    # only lora up and down suffixes are considered
                     layer_names_with_shapes = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
                 else:
                     layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
 
                 checkpoint.update({
+                    "num_keys": len(state_dict_shapes),
                     "is_lora": is_lora,
                     "layer_names_with_shapes": layer_names_with_shapes,
                     "model_components": [],
@@ -453,7 +512,16 @@ class ModelPolice:
                     # extract state_dict that match
                     for family in result:
                         family_dictnames = result[family]["matched_dictnames"]
+                        family_dictnames_recall = result[family]["matched_dictnames_recall"]
+
+                        # get ignored keys and state dict without ignored keys                      
                         input_state_dict = state_dict.copy()
+                        ignored = []
+                        for k in list(state_dict.keys()):
+                            if self.has_ignore_suffix(k):
+                                ignored.append(k)
+                                input_state_dict.pop(k)
+
                         for dictname in list(family_dictnames.keys()):
                             if dictname == "unknown":
                                 continue
@@ -465,24 +533,29 @@ class ModelPolice:
                                 if self.remove_lora_suffix(k) in matched_keys
                             }
                             assert len(matched_state_dict) > 0
-                            result[family]["matched_dictnames"][dictname] = matched_state_dict
+                            family_dictnames[dictname] = matched_state_dict
 
                         if "unknown" in family_dictnames:
                             family_dictnames["unknown"] = input_state_dict
+
                         else:
                             for k in list(input_state_dict.keys()):
                                 if torch.all(input_state_dict[k] == 0).item():
                                     input_state_dict.pop(k)
+
                             if len(input_state_dict):
                                 family_dictnames["unknown"] = input_state_dict
-                                logger.warning(f"Unmatched keys: {input_state_dict.keys()} for family {family}")
+
+                        if len(ignored):
+                            family_dictnames["ignored"] = ignored
 
                     checkpoint["lora_model_family"] = result
 
                 else:
                     # find model parts
                     for dict_name, dict_keys in self._model_dictionaries.items():
-                        if self.is_fully_covered(dict_keys, layer_names_with_shapes):
+                        coverage, drop_ratio = self.get_coverage_and_dropratio(dict_keys, layer_names_with_shapes)
+                        if coverage == 1.0 and drop_ratio == 0:
                             checkpoint["model_components"].append(dict_name)
 
             # full and part model detection:
@@ -495,8 +568,10 @@ class ModelPolice:
 
             full_models = []
             for dict_name, dict_keys in self._model_dictionaries.items():
-                if "full" in dict_name and self.is_fully_covered(dict_keys, all_keys):
-                    full_models.append(dict_name)
+                if "full" in dict_name:
+                    coverage, drop_ratio = self.get_coverage_and_dropratio(dict_keys, all_keys)
+                    if coverage == 1. and drop_ratio == 0.:
+                        full_models.append(dict_name)
 
             return full_models, checkpoint_list, error
 

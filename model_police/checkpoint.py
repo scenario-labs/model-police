@@ -8,7 +8,7 @@ import torch
 
 from pathlib import Path
 
-from model_police import ModelPolice
+from .model_police import ModelPolice
 
 here = Path(__file__).parent
 
@@ -62,16 +62,19 @@ def main():
                 print(" "*3, f"- {f}")
             
             print(" ", f"Lora: {checkpoint['is_lora']}")
+            print(" ", f"Num keys: {checkpoint['num_keys']}")
             if checkpoint["is_lora"]:
                 print(" ", "Lora model compatibility:")
                 for family in checkpoint["lora_model_family"]:
                     print(" ", f"- {family}")
                     coverage = checkpoint['lora_model_family'][family]['coverage']
-                    print(" "*5, f"Coverage: {coverage:.2f} ({int(coverage*100)}%)" )
+                    print(" "*5, f"Coverage: {int(coverage*100)}% - Dropped: {int((1 - coverage)*100)}%" )  
                     print(" "*5, f"Dictnames:" )
                     family_dictnames = checkpoint["lora_model_family"][family]["matched_dictnames"]
+                    family_dictnames_recall = checkpoint["lora_model_family"][family]["matched_dictnames_recall"]
                     for dictname in family_dictnames:
-                        print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])})")
+                        recall = f" - {int(family_dictnames_recall[dictname]*100)}% of lora keys of this dictionary" if dictname in family_dictnames_recall else ""
+                        print(" "*5, f"- {dictname} ({len(family_dictnames[dictname])} keys{recall})")
                         if dictname == "unknown":
                             print(" "*8, f"To check missing keys, run: `checkpoint diff {checkpoint_path} {family}`")
 
