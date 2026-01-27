@@ -32,7 +32,9 @@ def main():
     checkpoint_path = args.params[0]
     full_models, checkpoint_list, error = model_police_officer.inspect(checkpoint_path)
     
-    sys.stderr.write("\n")  # clearing diffusers TQDM ;)
+    sys.stderr.write("\n\n")  # clearing diffusers/huggingface_hub TQDM
+    sys.stderr.flush()
+    sys.stdout.flush()
 
     if error is not None:
         raise Exception(error)
