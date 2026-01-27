@@ -1,4 +1,4 @@
-bn.num_batches_tracked,
+gitbn.num_batches_tracked,
 bn.running_mean,128
 bn.running_var,128
 decoder.conv_in.bias,512
