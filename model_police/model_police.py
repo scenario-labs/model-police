@@ -14,6 +14,9 @@ from pathlib import Path
 from gguf.gguf_reader import GGUFReader
 from huggingface_hub import hf_hub_url
 from huggingface_hub import snapshot_download
+from huggingface_hub.utils import disable_progress_bars
+
+disable_progress_bars()
 from safetensors import safe_open
 
 logger = logging.getLogger(__name__)
