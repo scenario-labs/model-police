@@ -1,3 +1,4 @@
+transformer.layers.0.adaLN_modulation.0,256,15360
 transformer.layers.0.attention.to_k,3840,3840
 transformer.layers.0.attention.to_out.0,3840,3840
 transformer.layers.0.attention.to_q,3840,3840
@@ -5,6 +6,7 @@ transformer.layers.0.attention.to_v,3840,3840
 transformer.layers.0.feed_forward.w1,3840,10240
 transformer.layers.0.feed_forward.w2,10240,3840
 transformer.layers.0.feed_forward.w3,3840,10240
+transformer.layers.1.adaLN_modulation.0,256,15360
 transformer.layers.1.attention.to_k,3840,3840
 transformer.layers.1.attention.to_out.0,3840,3840
 transformer.layers.1.attention.to_q,3840,3840
@@ -12,6 +14,7 @@ transformer.layers.1.attention.to_v,3840,3840
 transformer.layers.1.feed_forward.w1,3840,10240
 transformer.layers.1.feed_forward.w2,10240,3840
 transformer.layers.1.feed_forward.w3,3840,10240
+transformer.layers.10.adaLN_modulation.0,256,15360
 transformer.layers.10.attention.to_k,3840,3840
 transformer.layers.10.attention.to_out.0,3840,3840
 transformer.layers.10.attention.to_q,3840,3840
@@ -19,6 +22,7 @@ transformer.layers.10.attention.to_v,3840,3840
 transformer.layers.10.feed_forward.w1,3840,10240
 transformer.layers.10.feed_forward.w2,10240,3840
 transformer.layers.10.feed_forward.w3,3840,10240
+transformer.layers.11.adaLN_modulation.0,256,15360
 transformer.layers.11.attention.to_k,3840,3840
 transformer.layers.11.attention.to_out.0,3840,3840
 transformer.layers.11.attention.to_q,3840,3840
@@ -26,6 +30,7 @@ transformer.layers.11.attention.to_v,3840,3840
 transformer.layers.11.feed_forward.w1,3840,10240
 transformer.layers.11.feed_forward.w2,10240,3840
 transformer.layers.11.feed_forward.w3,3840,10240
+transformer.layers.12.adaLN_modulation.0,256,15360
 transformer.layers.12.attention.to_k,3840,3840
 transformer.layers.12.attention.to_out.0,3840,3840
 transformer.layers.12.attention.to_q,3840,3840
@@ -33,6 +38,7 @@ transformer.layers.12.attention.to_v,3840,3840
 transformer.layers.12.feed_forward.w1,3840,10240
 transformer.layers.12.feed_forward.w2,10240,3840
 transformer.layers.12.feed_forward.w3,3840,10240
+transformer.layers.13.adaLN_modulation.0,256,15360
 transformer.layers.13.attention.to_k,3840,3840
 transformer.layers.13.attention.to_out.0,3840,3840
 transformer.layers.13.attention.to_q,3840,3840
@@ -40,6 +46,7 @@ transformer.layers.13.attention.to_v,3840,3840
 transformer.layers.13.feed_forward.w1,3840,10240
 transformer.layers.13.feed_forward.w2,10240,3840
 transformer.layers.13.feed_forward.w3,3840,10240
+transformer.layers.14.adaLN_modulation.0,256,15360
 transformer.layers.14.attention.to_k,3840,3840
 transformer.layers.14.attention.to_out.0,3840,3840
 transformer.layers.14.attention.to_q,3840,3840
@@ -47,6 +54,7 @@ transformer.layers.14.attention.to_v,3840,3840
 transformer.layers.14.feed_forward.w1,3840,10240
 transformer.layers.14.feed_forward.w2,10240,3840
 transformer.layers.14.feed_forward.w3,3840,10240
+transformer.layers.15.adaLN_modulation.0,256,15360
 transformer.layers.15.attention.to_k,3840,3840
 transformer.layers.15.attention.to_out.0,3840,3840
 transformer.layers.15.attention.to_q,3840,3840
@@ -54,6 +62,7 @@ transformer.layers.15.attention.to_v,3840,3840
 transformer.layers.15.feed_forward.w1,3840,10240
 transformer.layers.15.feed_forward.w2,10240,3840
 transformer.layers.15.feed_forward.w3,3840,10240
+transformer.layers.16.adaLN_modulation.0,256,15360
 transformer.layers.16.attention.to_k,3840,3840
 transformer.layers.16.attention.to_out.0,3840,3840
 transformer.layers.16.attention.to_q,3840,3840
@@ -61,6 +70,7 @@ transformer.layers.16.attention.to_v,3840,3840
 transformer.layers.16.feed_forward.w1,3840,10240
 transformer.layers.16.feed_forward.w2,10240,3840
 transformer.layers.16.feed_forward.w3,3840,10240
+transformer.layers.17.adaLN_modulation.0,256,15360
 transformer.layers.17.attention.to_k,3840,3840
 transformer.layers.17.attention.to_out.0,3840,3840
 transformer.layers.17.attention.to_q,3840,3840
@@ -68,6 +78,7 @@ transformer.layers.17.attention.to_v,3840,3840
 transformer.layers.17.feed_forward.w1,3840,10240
 transformer.layers.17.feed_forward.w2,10240,3840
 transformer.layers.17.feed_forward.w3,3840,10240
+transformer.layers.18.adaLN_modulation.0,256,15360
 transformer.layers.18.attention.to_k,3840,3840
 transformer.layers.18.attention.to_out.0,3840,3840
 transformer.layers.18.attention.to_q,3840,3840
@@ -75,6 +86,7 @@ transformer.layers.18.attention.to_v,3840,3840
 transformer.layers.18.feed_forward.w1,3840,10240
 transformer.layers.18.feed_forward.w2,10240,3840
 transformer.layers.18.feed_forward.w3,3840,10240
+transformer.layers.19.adaLN_modulation.0,256,15360
 transformer.layers.19.attention.to_k,3840,3840
 transformer.layers.19.attention.to_out.0,3840,3840
 transformer.layers.19.attention.to_q,3840,3840
@@ -82,6 +94,7 @@ transformer.layers.19.attention.to_v,3840,3840
 transformer.layers.19.feed_forward.w1,3840,10240
 transformer.layers.19.feed_forward.w2,10240,3840
 transformer.layers.19.feed_forward.w3,3840,10240
+transformer.layers.2.adaLN_modulation.0,256,15360
 transformer.layers.2.attention.to_k,3840,3840
 transformer.layers.2.attention.to_out.0,3840,3840
 transformer.layers.2.attention.to_q,3840,3840
@@ -89,6 +102,7 @@ transformer.layers.2.attention.to_v,3840,3840
 transformer.layers.2.feed_forward.w1,3840,10240
 transformer.layers.2.feed_forward.w2,10240,3840
 transformer.layers.2.feed_forward.w3,3840,10240
+transformer.layers.20.adaLN_modulation.0,256,15360
 transformer.layers.20.attention.to_k,3840,3840
 transformer.layers.20.attention.to_out.0,3840,3840
 transformer.layers.20.attention.to_q,3840,3840
@@ -96,6 +110,7 @@ transformer.layers.20.attention.to_v,3840,3840
 transformer.layers.20.feed_forward.w1,3840,10240
 transformer.layers.20.feed_forward.w2,10240,3840
 transformer.layers.20.feed_forward.w3,3840,10240
+transformer.layers.21.adaLN_modulation.0,256,15360
 transformer.layers.21.attention.to_k,3840,3840
 transformer.layers.21.attention.to_out.0,3840,3840
 transformer.layers.21.attention.to_q,3840,3840
@@ -103,6 +118,7 @@ transformer.layers.21.attention.to_v,3840,3840
 transformer.layers.21.feed_forward.w1,3840,10240
 transformer.layers.21.feed_forward.w2,10240,3840
 transformer.layers.21.feed_forward.w3,3840,10240
+transformer.layers.22.adaLN_modulation.0,256,15360
 transformer.layers.22.attention.to_k,3840,3840
 transformer.layers.22.attention.to_out.0,3840,3840
 transformer.layers.22.attention.to_q,3840,3840
@@ -110,6 +126,7 @@ transformer.layers.22.attention.to_v,3840,3840
 transformer.layers.22.feed_forward.w1,3840,10240
 transformer.layers.22.feed_forward.w2,10240,3840
 transformer.layers.22.feed_forward.w3,3840,10240
+transformer.layers.23.adaLN_modulation.0,256,15360
 transformer.layers.23.attention.to_k,3840,3840
 transformer.layers.23.attention.to_out.0,3840,3840
 transformer.layers.23.attention.to_q,3840,3840
@@ -117,6 +134,7 @@ transformer.layers.23.attention.to_v,3840,3840
 transformer.layers.23.feed_forward.w1,3840,10240
 transformer.layers.23.feed_forward.w2,10240,3840
 transformer.layers.23.feed_forward.w3,3840,10240
+transformer.layers.24.adaLN_modulation.0,256,15360
 transformer.layers.24.attention.to_k,3840,3840
 transformer.layers.24.attention.to_out.0,3840,3840
 transformer.layers.24.attention.to_q,3840,3840
@@ -124,6 +142,7 @@ transformer.layers.24.attention.to_v,3840,3840
 transformer.layers.24.feed_forward.w1,3840,10240
 transformer.layers.24.feed_forward.w2,10240,3840
 transformer.layers.24.feed_forward.w3,3840,10240
+transformer.layers.25.adaLN_modulation.0,256,15360
 transformer.layers.25.attention.to_k,3840,3840
 transformer.layers.25.attention.to_out.0,3840,3840
 transformer.layers.25.attention.to_q,3840,3840
@@ -131,6 +150,7 @@ transformer.layers.25.attention.to_v,3840,3840
 transformer.layers.25.feed_forward.w1,3840,10240
 transformer.layers.25.feed_forward.w2,10240,3840
 transformer.layers.25.feed_forward.w3,3840,10240
+transformer.layers.26.adaLN_modulation.0,256,15360
 transformer.layers.26.attention.to_k,3840,3840
 transformer.layers.26.attention.to_out.0,3840,3840
 transformer.layers.26.attention.to_q,3840,3840
@@ -138,6 +158,7 @@ transformer.layers.26.attention.to_v,3840,3840
 transformer.layers.26.feed_forward.w1,3840,10240
 transformer.layers.26.feed_forward.w2,10240,3840
 transformer.layers.26.feed_forward.w3,3840,10240
+transformer.layers.27.adaLN_modulation.0,256,15360
 transformer.layers.27.attention.to_k,3840,3840
 transformer.layers.27.attention.to_out.0,3840,3840
 transformer.layers.27.attention.to_q,3840,3840
@@ -145,6 +166,7 @@ transformer.layers.27.attention.to_v,3840,3840
 transformer.layers.27.feed_forward.w1,3840,10240
 transformer.layers.27.feed_forward.w2,10240,3840
 transformer.layers.27.feed_forward.w3,3840,10240
+transformer.layers.28.adaLN_modulation.0,256,15360
 transformer.layers.28.attention.to_k,3840,3840
 transformer.layers.28.attention.to_out.0,3840,3840
 transformer.layers.28.attention.to_q,3840,3840
@@ -152,6 +174,7 @@ transformer.layers.28.attention.to_v,3840,3840
 transformer.layers.28.feed_forward.w1,3840,10240
 transformer.layers.28.feed_forward.w2,10240,3840
 transformer.layers.28.feed_forward.w3,3840,10240
+transformer.layers.29.adaLN_modulation.0,256,15360
 transformer.layers.29.attention.to_k,3840,3840
 transformer.layers.29.attention.to_out.0,3840,3840
 transformer.layers.29.attention.to_q,3840,3840
@@ -159,6 +182,7 @@ transformer.layers.29.attention.to_v,3840,3840
 transformer.layers.29.feed_forward.w1,3840,10240
 transformer.layers.29.feed_forward.w2,10240,3840
 transformer.layers.29.feed_forward.w3,3840,10240
+transformer.layers.3.adaLN_modulation.0,256,15360
 transformer.layers.3.attention.to_k,3840,3840
 transformer.layers.3.attention.to_out.0,3840,3840
 transformer.layers.3.attention.to_q,3840,3840
@@ -166,6 +190,7 @@ transformer.layers.3.attention.to_v,3840,3840
 transformer.layers.3.feed_forward.w1,3840,10240
 transformer.layers.3.feed_forward.w2,10240,3840
 transformer.layers.3.feed_forward.w3,3840,10240
+transformer.layers.4.adaLN_modulation.0,256,15360
 transformer.layers.4.attention.to_k,3840,3840
 transformer.layers.4.attention.to_out.0,3840,3840
 transformer.layers.4.attention.to_q,3840,3840
@@ -173,6 +198,7 @@ transformer.layers.4.attention.to_v,3840,3840
 transformer.layers.4.feed_forward.w1,3840,10240
 transformer.layers.4.feed_forward.w2,10240,3840
 transformer.layers.4.feed_forward.w3,3840,10240
+transformer.layers.5.adaLN_modulation.0,256,15360
 transformer.layers.5.attention.to_k,3840,3840
 transformer.layers.5.attention.to_out.0,3840,3840
 transformer.layers.5.attention.to_q,3840,3840
@@ -180,6 +206,7 @@ transformer.layers.5.attention.to_v,3840,3840
 transformer.layers.5.feed_forward.w1,3840,10240
 transformer.layers.5.feed_forward.w2,10240,3840
 transformer.layers.5.feed_forward.w3,3840,10240
+transformer.layers.6.adaLN_modulation.0,256,15360
 transformer.layers.6.attention.to_k,3840,3840
 transformer.layers.6.attention.to_out.0,3840,3840
 transformer.layers.6.attention.to_q,3840,3840
@@ -187,6 +214,7 @@ transformer.layers.6.attention.to_v,3840,3840
 transformer.layers.6.feed_forward.w1,3840,10240
 transformer.layers.6.feed_forward.w2,10240,3840
 transformer.layers.6.feed_forward.w3,3840,10240
+transformer.layers.7.adaLN_modulation.0,256,15360
 transformer.layers.7.attention.to_k,3840,3840
 transformer.layers.7.attention.to_out.0,3840,3840
 transformer.layers.7.attention.to_q,3840,3840
@@ -194,6 +222,7 @@ transformer.layers.7.attention.to_v,3840,3840
 transformer.layers.7.feed_forward.w1,3840,10240
 transformer.layers.7.feed_forward.w2,10240,3840
 transformer.layers.7.feed_forward.w3,3840,10240
+transformer.layers.8.adaLN_modulation.0,256,15360
 transformer.layers.8.attention.to_k,3840,3840
 transformer.layers.8.attention.to_out.0,3840,3840
 transformer.layers.8.attention.to_q,3840,3840
@@ -201,6 +230,7 @@ transformer.layers.8.attention.to_v,3840,3840
 transformer.layers.8.feed_forward.w1,3840,10240
 transformer.layers.8.feed_forward.w2,10240,3840
 transformer.layers.8.feed_forward.w3,3840,10240
+transformer.layers.9.adaLN_modulation.0,256,15360
 transformer.layers.9.attention.to_k,3840,3840
 transformer.layers.9.attention.to_out.0,3840,3840
 transformer.layers.9.attention.to_q,3840,3840
