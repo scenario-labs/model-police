@@ -491,22 +491,25 @@ class ModelPolice:
                 state_dict = checkpoint["state_dict"]
 
                 state_dict_shapes = self.get_state_dict_shapes(state_dict)
-                is_lora = self.is_lora(state_dict_shapes)
 
-                # layer_names_with_shapes creation
-                if is_lora:
-                    # only lora up and down suffixes are considered
-                    layer_names_with_shapes = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
-                else:
-                    layer_names_with_shapes = self.state_dict_shapes_to_list(state_dict_shapes)
-
+                # store the raw key list before lora detection, so that consumers can
+                # still report the checkpoint keys when detection fails (e.g. mixed
+                # lora and full keys)
                 checkpoint.update({
                     "num_keys": len(state_dict_shapes),
-                    "is_lora": is_lora,
-                    "layer_names_with_shapes": layer_names_with_shapes,
+                    "is_lora": None,
+                    "layer_names_with_shapes": self.state_dict_shapes_to_list(state_dict_shapes),
                     "model_components": [],
                     "lora_model_family": {},
                 })
+
+                is_lora = self.is_lora(state_dict_shapes)
+                checkpoint["is_lora"] = is_lora
+
+                if is_lora:
+                    # only lora up and down suffixes are considered
+                    checkpoint["layer_names_with_shapes"] = self.get_layer_names_with_shapes_from_lora(state_dict_shapes)
+                layer_names_with_shapes = checkpoint["layer_names_with_shapes"]
 
                 if is_lora:
                     # lora classification
