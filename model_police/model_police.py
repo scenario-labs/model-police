@@ -30,6 +30,8 @@ class ModelPolice:
     _layername_and_shape_to_dictname: dict[str, str] = {}
     _lora_down_suffixes: list[str] = []
     _lora_up_suffixes: list[str] = []
+    _lokr_w1_suffixes: list[str] = []
+    _lokr_w2_suffixes: list[str] = []
     _lora_ignore_suffixes: list[str] = []
     _full_ignore_suffixes: list[str] = []
 
@@ -41,6 +43,10 @@ class ModelPolice:
             self._lora_up_suffixes = [s.strip() for s in f.readlines()]
         with open(here / "lora_down_suffixes.txt") as f:
             self._lora_down_suffixes = [s.strip() for s in f.readlines()]
+        with open(here / "lokr_w1_suffixes.txt") as f:
+            self._lokr_w1_suffixes = [s.strip() for s in f.readlines()]
+        with open(here / "lokr_w2_suffixes.txt") as f:
+            self._lokr_w2_suffixes = [s.strip() for s in f.readlines()]
         with open(here / "lora_ignore_suffixes.txt") as f:
             self._lora_ignore_suffixes = [s.strip() for s in f.readlines()]
         with open(here / "full_ignore_suffixes.txt") as f:
@@ -137,7 +143,7 @@ class ModelPolice:
                 continue
 
             _is_lora_key = False
-            for suffix in self._lora_down_suffixes + self._lora_up_suffixes:
+            for suffix in self._lora_down_suffixes + self._lora_up_suffixes + self._lokr_w1_suffixes + self._lokr_w2_suffixes:
                 if key.endswith(suffix):
                     _is_lora_key = True
                     break
@@ -152,14 +158,14 @@ class ModelPolice:
 
 
     def remove_lora_suffix(self, key):
-        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
+        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lokr_w1_suffixes + self._lokr_w2_suffixes + self._lora_ignore_suffixes:
             if key.endswith(s):
                 return key.removesuffix(s)
         return key
 
 
     def split_key_and_lora_suffix(self, key):
-        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lora_ignore_suffixes:
+        for s in self._lora_down_suffixes + self._lora_up_suffixes + self._lokr_w1_suffixes + self._lokr_w2_suffixes + self._lora_ignore_suffixes:
             if key.endswith(s):
                 return key.removesuffix(s), s
         raise ValueError(f"{key} is not a lora key")
@@ -168,6 +174,8 @@ class ModelPolice:
     def get_layer_names_with_shapes_from_lora(self, state_dict_or_state_dict_shapes):
         in_features = {}  # dict : key => in_features
         out_features = {}  # dict : key => out_features
+        lokr_w1_shapes = {}  # dict : key => lokr_w1 shape
+        lokr_w2_shapes = {}  # dict : key => lokr_w2 shape
 
         for k, t in state_dict_or_state_dict_shapes.items():
 
@@ -184,14 +192,29 @@ class ModelPolice:
                 _rank = t.pop(1)
                 out_features[layer_key] = t
 
+            if lora_suffix in self._lokr_w1_suffixes:
+                lokr_w1_shapes[layer_key] = t
+
+            if lora_suffix in self._lokr_w2_suffixes:
+                lokr_w2_shapes[layer_key] = t
+
         assert len(out_features) == len(in_features), "Number of up and down keys do not match in the lora"
-        
+        assert len(lokr_w1_shapes) == len(lokr_w2_shapes), "Number of lokr_w1 and lokr_w2 keys do not match in the lora"
+
         final_keys = []
         for k in in_features:
             if len(in_features[k]) == 1:
                 final_keys.append(f"{k},{in_features[k][0]},{out_features[k][0]}")
             elif len(in_features[k]) == 3:
                 final_keys.append(f"{k},{out_features[k][0]},{in_features[k][0]},{in_features[k][1]*out_features[k][1]},{in_features[k][2]*out_features[k][2]}")
+
+        for k, w1 in lokr_w1_shapes.items():
+            # the lokr delta is the kronecker product w1 (x) w2, so the layer
+            # dimensions are the products of the factor dimensions
+            w2 = lokr_w2_shapes[k]
+            if len(w1) != 2 or len(w2) != 2:
+                raise ValueError(f"Unsupported lokr factor shapes for {k}: {w1} and {w2}")
+            final_keys.append(f"{k},{w1[1] * w2[1]},{w1[0] * w2[0]}")
 
         return sorted(final_keys)
 
