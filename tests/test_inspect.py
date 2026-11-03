@@ -151,3 +151,29 @@ def test_inspect_zimage_lokr_classifies_as_zimage(police, tmp_path):
     assert sorted(matched_weight_keys) == sorted(
         k for k in state_dict if not k.endswith(".alpha")
     )
+
+
+def test_inspect_minimax_h3_lora_classifies_as_minimax_h3(police, tmp_path):
+    """A MiniMax H3 LoRA in the layout Scenario's musubi training ships
+    (ComfyUI keys) must classify as minimax-h3 only, with full coverage."""
+    state_dict = {}
+    for module, in_features, out_features in (
+        ("attn.qkv_proj", 5376, 21504),
+        ("attn.out_proj", 7168, 5376),
+        ("mlp.fc1", 5376, 28672),
+        ("mlp.fc2", 14336, 5376),
+    ):
+        state_dict[f"diffusion_model.blocks.0.{module}.lora_A.weight"] = torch.zeros(4, in_features)
+        state_dict[f"diffusion_model.blocks.0.{module}.lora_B.weight"] = torch.zeros(out_features, 4)
+
+    checkpoint_path = make_checkpoint(tmp_path, state_dict)
+
+    full_models, checkpoint_list, error = police.inspect(checkpoint_path)
+
+    assert error is None
+    checkpoint = checkpoint_list[0]
+    assert checkpoint["is_lora"] is True
+    assert list(checkpoint["lora_model_family"]) == ["minimax-h3"]
+    minimax_h3 = checkpoint["lora_model_family"]["minimax-h3"]
+    assert minimax_h3["coverage"] == 1.0
+    assert list(minimax_h3["matched_dictnames"]) == ["minimax-h3_lora_comfyui"]
